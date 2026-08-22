@@ -6,7 +6,7 @@ const alertVariants = cva('relative w-full rounded-card border p-4 text-sm [&>sv
   variants: {
     variant: {
       default: 'border-border bg-surface text-text',
-      accent: 'border-transparent bg-accent-soft text-accent-foreground',
+      together: 'border-transparent bg-together-soft text-primary',
       success: 'border-transparent bg-success-soft text-success',
       warning: 'border-transparent bg-warning-soft text-warning',
       danger: 'border-transparent bg-danger-soft text-danger',

@@ -47,7 +47,7 @@ export default async function HomePage({ searchParams }: PageProps<'/home'>) {
   return (
     <div className="space-y-5">
       {justPaired ? (
-        <div className="animate-gentle-rise rounded-card bg-accent-soft px-5 py-4 text-sm text-accent-foreground">
+        <div className="animate-gentle-rise bg-wash rounded-card px-5 py-4 text-sm text-primary">
           <p className="font-semibold">{t.pairing.pairedTitle}</p>
           <p className="mt-0.5">{t.pairing.pairedBody}</p>
         </div>
@@ -81,7 +81,7 @@ export default async function HomePage({ searchParams }: PageProps<'/home'>) {
               <dt className="text-text-muted">{t.home.myStatus}:</dt>
               <dd>
                 {mySubmitted ? (
-                  <Badge variant="success">{t.home.statusAnswered}</Badge>
+                  <Badge variant="personA">{t.home.statusAnswered}</Badge>
                 ) : (
                   <Badge>{t.home.statusNotAnswered}</Badge>
                 )}
@@ -91,7 +91,7 @@ export default async function HomePage({ searchParams }: PageProps<'/home'>) {
               <dt className="text-text-muted">{t.home.partnerStatus}:</dt>
               <dd>
                 {today?.partnerSubmitted ? (
-                  <Badge variant="success">{t.home.statusAnswered}</Badge>
+                  <Badge variant="personB">{t.home.statusAnswered}</Badge>
                 ) : (
                   <Badge>{t.home.statusNotAnswered}</Badge>
                 )}
@@ -105,7 +105,7 @@ export default async function HomePage({ searchParams }: PageProps<'/home'>) {
             </p>
           ) : null}
           {revealed ? (
-            <p className="rounded-card-sm bg-accent-soft px-4 py-3 text-sm font-medium text-accent-foreground">
+            <p className="bg-wash text-blend rounded-card-sm px-4 py-3 text-sm font-semibold">
               {t.home.revealedTitle}
             </p>
           ) : null}
@@ -180,9 +180,9 @@ export default async function HomePage({ searchParams }: PageProps<'/home'>) {
       </div>
 
       {today?.insight ? (
-        <Card className="border-accent/40">
+        <Card className="border-primary/30">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-accent-foreground">
+            <CardTitle className="flex items-center gap-2 text-primary">
               <Sparkles className="size-4" aria-hidden="true" />
               {t.home.aiLead}
             </CardTitle>

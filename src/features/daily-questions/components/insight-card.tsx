@@ -6,9 +6,9 @@ import { Badge } from '@/components/ui/badge'
 /** Structured Daily Insight rendering (spec §17). scores are never shown (spec §4-1). */
 export function InsightCard({ insight }: { insight: DailyInsight }) {
   return (
-    <Card className="animate-gentle-rise border-accent/40">
+    <Card className="animate-gentle-rise border-primary/30">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-accent-foreground">
+        <CardTitle className="flex items-center gap-2 text-primary">
           <Sparkles className="size-4" aria-hidden="true" />
           愛の通訳から、二人へのメッセージ
         </CardTitle>
@@ -23,7 +23,7 @@ export function InsightCard({ insight }: { insight: DailyInsight }) {
             <ul className="flex flex-wrap gap-1.5">
               {insight.sharedValues.map((value) => (
                 <li key={value}>
-                  <Badge variant="accent">{value}</Badge>
+                  <Badge variant="together">{value}</Badge>
                 </li>
               ))}
             </ul>
@@ -50,7 +50,7 @@ export function InsightCard({ insight }: { insight: DailyInsight }) {
           <p className="mt-1 font-medium">{insight.conversationQuestion}</p>
         </div>
 
-        <div className="rounded-card-sm bg-accent-soft px-4 py-3 text-accent-foreground">
+        <div className="rounded-card-sm bg-together-soft px-4 py-3 text-primary">
           <h3 className="text-xs font-semibold">
             今日できる小さなこと（約{insight.microAction.estimatedMinutes}分）
           </h3>

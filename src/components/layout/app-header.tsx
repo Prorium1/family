@@ -1,12 +1,13 @@
 import Link from 'next/link'
 import { Settings } from 'lucide-react'
+import { BrandLockup } from '@/components/shared/brand-mark'
 
 /** Compact mobile header inside the authed shell. */
 export function AppHeader({ appName }: { appName: string }) {
   return (
     <header className="flex items-center justify-between px-4 py-3 md:hidden">
-      <Link href="/home" className="text-base font-bold text-primary">
-        {appName}
+      <Link href="/home" className="text-base">
+        <BrandLockup name={appName} />
       </Link>
       <Link
         href="/settings/profile"

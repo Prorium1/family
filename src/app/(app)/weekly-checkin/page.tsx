@@ -31,7 +31,7 @@ export default async function WeeklyCheckinPage() {
         </div>
       ) : (
         <div className="animate-gentle-rise space-y-4">
-          <p className="rounded-card bg-accent-soft px-4 py-3 text-center text-sm font-semibold text-accent-foreground">
+          <p className="rounded-card bg-together-soft px-4 py-3 text-center text-sm font-semibold text-primary">
             今週のふたりの答えがそろいました
           </p>
           {checkin.questions.map((question) => (

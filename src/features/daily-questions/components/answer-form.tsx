@@ -98,7 +98,7 @@ export function AnswerForm({
           {options!.map((option) => (
             <Label
               key={option}
-              className="flex min-h-12 cursor-pointer items-center gap-3 rounded-card-sm border border-border bg-surface px-4 font-normal has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-accent-soft/40"
+              className="flex min-h-12 cursor-pointer items-center gap-3 rounded-card-sm border border-border bg-surface px-4 font-normal has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-together-soft/40"
             >
               <RadioGroupItem value={option} />
               {option}
@@ -115,7 +115,7 @@ export function AnswerForm({
           {['1', '2', '3', '4', '5'].map((v) => (
             <Label
               key={v}
-              className="flex min-h-12 flex-1 cursor-pointer flex-col items-center justify-center gap-1 rounded-card-sm border border-border bg-surface font-normal has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-accent-soft/40"
+              className="flex min-h-12 flex-1 cursor-pointer flex-col items-center justify-center gap-1 rounded-card-sm border border-border bg-surface font-normal has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-together-soft/40"
             >
               <RadioGroupItem value={v} className="sr-only" />
               <span className="text-base font-semibold">{v}</span>

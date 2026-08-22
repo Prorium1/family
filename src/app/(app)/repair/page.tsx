@@ -9,11 +9,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 
 export const metadata = { title: '整える' }
 
-const statusLabels: Record<string, { label: string; variant: 'default' | 'accent' | 'success' | 'warning' }> = {
+const statusLabels: Record<string, { label: string; variant: 'default' | 'together' | 'success' | 'warning' }> = {
   open: { label: '整理中', variant: 'default' },
   waiting_partner: { label: 'パートナー待ち', variant: 'default' },
-  analyzing: { label: 'AIが整理中', variant: 'accent' },
-  insight_ready: { label: 'メッセージ到着', variant: 'accent' },
+  analyzing: { label: 'AIが整理中', variant: 'together' },
+  insight_ready: { label: 'メッセージ到着', variant: 'together' },
   paused_for_safety: { label: '安全確認', variant: 'warning' },
   resolved: { label: '整いました', variant: 'success' },
   closed: { label: '終了', variant: 'default' },

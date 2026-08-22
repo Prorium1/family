@@ -4,6 +4,10 @@ import * as React from 'react'
 import * as ProgressPrimitive from '@radix-ui/react-progress'
 import { cn } from '@/lib/utils'
 
+/**
+ * Progress fills with the logo gradient: the further the couple gets, the
+ * more of the mark is revealed (docs/BRAND.md §4).
+ */
 export function Progress({
   className,
   value,
@@ -16,7 +20,7 @@ export function Progress({
       {...props}
     >
       <ProgressPrimitive.Indicator
-        className="h-full w-full flex-1 bg-accent transition-transform"
+        className="bg-identity h-full w-full flex-1 transition-transform"
         style={{ transform: `translateX(-${100 - (value ?? 0)}%)` }}
       />
     </ProgressPrimitive.Root>
