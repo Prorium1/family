@@ -87,7 +87,8 @@ export interface WeEntryRow {
   body: string
   source_type: string
   source_id: string | null
-  created_by_user_id: string
+  /** null once the author deletes their account — the couple keeps the row */
+  created_by_user_id: string | null
   created_at: string
 }
 
@@ -100,7 +101,7 @@ export function mapWeEntry(row: WeEntryRow): WeEntry {
     body: row.body,
     sourceType: row.source_type as WeEntry['sourceType'],
     sourceId: row.source_id,
-    createdByUserId: row.created_by_user_id,
+    createdByUserId: row.created_by_user_id ?? '',
     createdAt: row.created_at,
   }
 }
@@ -527,7 +528,7 @@ export interface AgreementRow {
   starts_on: string | null
   review_on: string | null
   status: string
-  created_by_user_id: string
+  created_by_user_id: string | null
   created_at: string
   updated_at: string
 }
@@ -543,7 +544,7 @@ export function mapAgreement(row: AgreementRow): Agreement {
     startsOn: row.starts_on,
     reviewOn: row.review_on,
     status: row.status as AgreementStatus,
-    createdByUserId: row.created_by_user_id,
+    createdByUserId: row.created_by_user_id ?? '',
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }
@@ -556,7 +557,7 @@ export interface AgreementRevisionRow {
   background: string
   decision: string
   comment: string | null
-  edited_by_user_id: string
+  edited_by_user_id: string | null
   edited_at: string
 }
 
@@ -568,7 +569,7 @@ export function mapAgreementRevision(row: AgreementRevisionRow): AgreementRevisi
     background: row.background,
     decision: row.decision,
     comment: row.comment,
-    editedByUserId: row.edited_by_user_id,
+    editedByUserId: row.edited_by_user_id ?? '',
     editedAt: row.edited_at,
   }
 }

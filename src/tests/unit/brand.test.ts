@@ -267,9 +267,34 @@ describe('form and motion (§5)', () => {
     expect(css).toMatch(/animation-duration:\s*0\.01ms\s*!important/)
   })
 
-  it('ships only the two sanctioned animations', () => {
+  it('ships only the three sanctioned animations', () => {
     const keyframes = [...css.matchAll(/@keyframes\s+([a-z-]+)/g)].map((m) => m[1])
-    expect(keyframes.sort()).toEqual(['gentle-rise', 'lens-breathe'])
+    expect(keyframes.sort()).toEqual(['blend-drift', 'gentle-rise', 'lens-breathe'])
+  })
+
+  it('keeps the blend drifting slowly — a button breathes, it never blinks', () => {
+    const rule = css.match(/\.animate-blend-drift::after\s*\{[^}]+\}/)![0]
+    const seconds = Number(rule.match(/blend-drift\s+([0-9.]+)s/)![1])
+    expect(seconds).toBeGreaterThanOrEqual(8)
+  })
+
+  it('shows the whole mark on a primary action — never a slice of it', () => {
+    const blend = css.match(/\.bg-blend\s*\{[^}]+\}/)![0]
+    expect(blend, 'scaling the blend hides one of the two people').not.toMatch(
+      /background-size|background-position/,
+    )
+  })
+
+  it('never thins Japanese text with antialiasing, and turns on proportional kana', () => {
+    const layout = readFileSync('src/app/layout.tsx', 'utf8')
+    expect(layout).not.toMatch(/\bantialiased\b/)
+    expect(css).toContain("font-feature-settings: 'palt'")
+  })
+
+  it('gives the primary action real weight, not a hairline', () => {
+    const button = readFileSync('src/components/ui/button.tsx', 'utf8')
+    expect(button).toContain('font-bold')
+    expect(button).toMatch(/active:scale-\[0\.98\d?\]/)
   })
 })
 
