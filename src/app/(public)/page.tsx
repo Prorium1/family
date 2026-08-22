@@ -33,7 +33,7 @@ export default function LandingPage() {
             <Link href="/signup">ふたりではじめる</Link>
           </Button>
           <p className="mt-3 text-xs text-text-muted">
-            パートナーは招待リンクから無料で参加できます。
+            登録は60秒。パートナーは届いたリンクをタップするだけで参加できます。
           </p>
         </div>
       </section>

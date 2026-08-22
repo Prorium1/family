@@ -18,6 +18,25 @@ export const demoProfiles: Repositories['profiles'] = {
   async getById(id) {
     return getDemoStore().profiles.find((p) => p.id === id) ?? null
   },
+  async ensure(id, defaults) {
+    return mutateDemoStore((store) => {
+      const existing = store.profiles.find((p) => p.id === id)
+      if (existing) return { ...existing }
+      const profile: Profile = {
+        id,
+        displayName: defaults.displayName,
+        email: defaults.email,
+        locale: 'ja',
+        timezone: 'Asia/Tokyo',
+        ageConfirmed: false,
+        isAdmin: false,
+        createdAt: nowIso(),
+        updatedAt: nowIso(),
+      }
+      store.profiles.push(profile)
+      return { ...profile }
+    })
+  },
   async update(id, patch) {
     return mutateDemoStore((store) => {
       const profile = store.profiles.find((p) => p.id === id)
@@ -146,6 +165,19 @@ export const demoInvitations: Repositories['invitations'] = {
       (i) => i.codeHash === codeHash && invitationIsActive(i),
     )
     return found ? { ...found } : null
+  },
+  async peekBySecretHash(secretHash) {
+    const store = getDemoStore()
+    const invitation = store.invitations.find(
+      (i) =>
+        (i.tokenHash === secretHash || i.codeHash === secretHash) &&
+        invitationIsActive(i) &&
+        i.attemptCount < 5,
+    )
+    if (!invitation) return null
+    const inviter = store.profiles.find((p) => p.id === invitation.inviterUserId)
+    if (!inviter) return null
+    return { inviterName: inviter.displayName, stage: invitation.relationshipStage }
   },
   async listActive() {
     return getDemoStore().invitations.filter(invitationIsActive).map((i) => ({ ...i }))

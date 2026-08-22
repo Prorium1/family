@@ -8,13 +8,25 @@ import { Label } from '@/components/ui/label'
 
 export const metadata = { title: 'ふたりではじめる' }
 
-export default function SignupPage() {
+export default async function SignupPage({ searchParams }: PageProps<'/signup'>) {
+  const params = await searchParams
   return (
     <div className="mx-auto max-w-md px-4 py-12">
-      <PageTitle
-        title="ふたりではじめる"
-        subtitle="まずあなたが登録して、パートナーを招待しましょう。"
-      />
+      <PageTitle title="ふたりではじめる" subtitle="登録は60秒。合言葉もパスワードも不要です。" />
+      <ol className="mb-5 space-y-2 text-sm text-text-muted">
+        <li className="flex gap-2">
+          <span className="text-primary font-bold">1.</span>
+          あなたが登録すると、招待リンクとQRコードがすぐに表示されます
+        </li>
+        <li className="flex gap-2">
+          <span className="text-primary font-bold">2.</span>
+          パートナーはリンクをタップして登録するだけで、自動的につながります
+        </li>
+        <li className="flex gap-2">
+          <span className="text-primary font-bold">3.</span>
+          その日のうちに、最初の質問に二人で答えられます
+        </li>
+      </ol>
       {isDemoMode ? (
         <Card>
           <CardHeader>
@@ -44,6 +56,7 @@ export default function SignupPage() {
           </CardHeader>
           <CardContent>
             <form className="space-y-4" action="/api/auth/magic-link" method="post">
+              <input type="hidden" name="from" value="signup" />
               <div className="space-y-1.5">
                 <Label htmlFor="email">メールアドレス</Label>
                 <Input id="email" name="email" type="email" required autoComplete="email" />
@@ -55,6 +68,18 @@ export default function SignupPage() {
           </CardContent>
         </Card>
       )}
+      {params.sent === '1' ? (
+        <p className="mt-4 rounded-card bg-success-soft px-4 py-3 text-sm text-success" role="status">
+          ログインリンクをお送りしました。メールをご確認ください。
+        </p>
+      ) : null}
+      {typeof params.error === 'string' ? (
+        <p className="mt-4 rounded-card bg-warning-soft px-4 py-3 text-sm text-warning" role="alert">
+          {params.error === 'unconfigured'
+            ? 'メールログインは現在準備中です。デモモードをご利用ください。'
+            : 'リンクを送信できませんでした。メールアドレスを確認して、もう一度お試しください。'}
+        </p>
+      ) : null}
       <p className="mt-4 text-center text-sm text-text-muted">
         すでにアカウントがある方は{' '}
         <Link href="/login" className="text-primary underline">

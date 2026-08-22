@@ -12,7 +12,8 @@ export const metadata = { title: 'ログイン' }
  * Login. Demo mode: persona picker. Supabase mode: magic-link email form
  * (rendered when credentials are configured).
  */
-export default function LoginPage() {
+export default async function LoginPage({ searchParams }: PageProps<'/login'>) {
+  const params = await searchParams
   return (
     <div className="mx-auto max-w-md px-4 py-12">
       <PageTitle title="おかえりなさい" />
@@ -50,6 +51,7 @@ export default function LoginPage() {
           </CardHeader>
           <CardContent>
             <form className="space-y-4" action="/api/auth/magic-link" method="post">
+              <input type="hidden" name="from" value="login" />
               <div className="space-y-1.5">
                 <Label htmlFor="email">メールアドレス</Label>
                 <Input id="email" name="email" type="email" required autoComplete="email" />
@@ -61,6 +63,18 @@ export default function LoginPage() {
           </CardContent>
         </Card>
       )}
+      {params.sent === '1' ? (
+        <p className="mt-4 rounded-card bg-success-soft px-4 py-3 text-sm text-success" role="status">
+          ログインリンクをお送りしました。メールをご確認ください。
+        </p>
+      ) : null}
+      {typeof params.error === 'string' ? (
+        <p className="mt-4 rounded-card bg-warning-soft px-4 py-3 text-sm text-warning" role="alert">
+          {params.error === 'unconfigured'
+            ? 'メールログインは現在準備中です。デモモードをご利用ください。'
+            : 'リンクを送信できませんでした。メールアドレスを確認して、もう一度お試しください。'}
+        </p>
+      ) : null}
       <p className="mt-4 text-center text-sm text-text-muted">
         アカウントがまだの方は{' '}
         <Link href="/signup" className="text-primary underline">

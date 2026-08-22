@@ -41,6 +41,8 @@ import type { RelationshipStage } from '@/types/domain'
 export interface Repositories {
   profiles: {
     getById(id: string): Promise<Profile | null>
+    /** Create the profile on first login when it does not exist yet. */
+    ensure(id: string, defaults: { displayName: string; email: string }): Promise<Profile>
     update(id: string, patch: Partial<Pick<Profile, 'displayName' | 'locale' | 'timezone' | 'ageConfirmed'>>): Promise<Profile>
   }
   couples: {
@@ -54,6 +56,13 @@ export interface Repositories {
     create(invitation: CoupleInvitation): Promise<CoupleInvitation>
     getActiveForInviter(inviterUserId: string): Promise<CoupleInvitation | null>
     findByTokenHash(tokenHash: string): Promise<CoupleInvitation | null>
+    /**
+     * Anonymous-safe preview for the /join landing: who invited me, into
+     * which stage. Never returns hashes and never consumes the invitation.
+     */
+    peekBySecretHash(
+      secretHash: string,
+    ): Promise<{ inviterName: string; stage: RelationshipStage } | null>
     findByCodeHash(codeHash: string): Promise<CoupleInvitation | null>
     listActive(): Promise<CoupleInvitation[]>
     recordFailedAttempt(invitationId: string): Promise<number>

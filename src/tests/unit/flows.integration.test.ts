@@ -63,7 +63,8 @@ describe('pairing flow (spec §37-1)', () => {
     const invite = await createInvitation(A, 'dating')
     const serialized = JSON.stringify(getDemoStore().invitations)
     expect(serialized).not.toContain(invite.code)
-    const rawToken = new URL(invite.inviteUrl).searchParams.get('token')!
+    const rawToken = invite.inviteUrl.split('/join/')[1]
+    expect(rawToken.length).toBeGreaterThan(20)
     expect(serialized).not.toContain(rawToken)
   })
 
@@ -324,5 +325,40 @@ describe('safety-paused sessions are invisible to the partner (spec §4-5)', () 
     // The initiator still sees it, with the safety screen
     const forA = await getRepairSession(sessionId, A)
     expect(forA?.status).toBe('paused_for_safety')
+  })
+})
+
+describe('smooth activation (spec §7)', () => {
+  it('peekInvitation reveals inviter name and stage for both token and code — without consuming', async () => {
+    const { peekInvitation } = await import('@/server/services/pairing-service')
+    const invite = await createInvitation(A, 'engaged')
+    const rawToken = invite.inviteUrl.split('/join/')[1]
+
+    expect(await peekInvitation(rawToken)).toEqual({ inviterName: 'あかり', stage: 'engaged' })
+    expect(await peekInvitation(invite.code)).toEqual({ inviterName: 'あかり', stage: 'engaged' })
+    // peeking twice — nothing consumed, still redeemable
+    await acceptInvitation(B, invite.code)
+    expect((await getPairStatus(B)).paired).toBe(true)
+  })
+
+  it('peekInvitation returns null for unknown or used secrets', async () => {
+    const { peekInvitation } = await import('@/server/services/pairing-service')
+    expect(await peekInvitation('no-such-token')).toBeNull()
+    const invite = await createInvitation(A, 'dating')
+    await acceptInvitation(B, invite.code)
+    expect(await peekInvitation(invite.code)).toBeNull()
+  })
+
+  it("pairing revokes the accepter's own dangling invitation", async () => {
+    const inviteA = await createInvitation(A, 'dating')
+    await createInvitation(B, 'dating') // B hesitated and made their own first
+    await acceptInvitation(B, inviteA.code)
+    // no live secrets remain for either member of the new couple
+    expect(await getRepositories().invitations.listActive()).toHaveLength(0)
+  })
+
+  it('the invite URL points at /join and carries the raw token', async () => {
+    const invite = await createInvitation(A, 'dating', 'https://example.com')
+    expect(invite.inviteUrl).toMatch(/^https:\/\/example\.com\/join\/[A-Za-z0-9_-]{20,}$/)
   })
 })

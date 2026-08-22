@@ -11,6 +11,7 @@ import { InsightCard } from '@/features/daily-questions/components/insight-card'
 import { InsightSkeleton } from '@/features/daily-questions/components/insight-skeleton'
 import { InsightFallback } from '@/features/daily-questions/components/insight-fallback'
 import { markTalkedAction } from '@/server/actions/daily-actions'
+import { AutoRefresh } from '@/components/shared/auto-refresh'
 
 export const metadata = { title: '今日の質問' }
 
@@ -33,6 +34,8 @@ export default async function TodayPage({ params }: PageProps<'/today/[assignmen
 
   return (
     <div className="space-y-6">
+      {/* while waiting for the partner, the reveal arrives on its own */}
+      <AutoRefresh enabled={view.myAnswer.submitted && !revealed} />
       <div>
         <div className="mb-2 flex items-center gap-2">
           <Badge variant="outline">今日の質問</Badge>
@@ -61,8 +64,8 @@ export default async function TodayPage({ params }: PageProps<'/today/[assignmen
               <p className="font-medium">あなたの回答は届きました。</p>
               <p className="mt-0.5 text-text-muted">
                 {view.partnerSubmitted
-                  ? '二人の答えを公開しています…ページを再読み込みしてください。'
-                  : 'パートナーの回答を待っています。二人の回答がそろったら、同時に公開されます。'}
+                  ? 'まもなく二人の答えが同時に公開されます…'
+                  : 'パートナーの回答を待っています。そろった瞬間に、この画面に同時公開されます。'}
               </p>
             </div>
           ) : null}

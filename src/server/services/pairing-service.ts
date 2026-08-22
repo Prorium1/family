@@ -32,6 +32,8 @@ export class PairingError extends Error {
 export async function createInvitation(
   inviterUserId: string,
   stage: RelationshipStage,
+  /** The origin the inviter is browsing on — keeps the link on their host. */
+  origin?: string,
 ): Promise<{ inviteUrl: string; code: string; expiresAt: string }> {
   const repos = getRepositories()
   if (await repos.couples.getForUser(inviterUserId)) {
@@ -57,10 +59,21 @@ export async function createInvitation(
   })
   await track('partner_invite_created', { stage })
   return {
-    inviteUrl: `${publicEnv.NEXT_PUBLIC_APP_URL}/pair?token=${rawToken}`,
+    inviteUrl: `${origin ?? publicEnv.NEXT_PUBLIC_APP_URL}/join/${rawToken}`,
     code,
     expiresAt,
   }
+}
+
+/**
+ * Anonymous-safe lookup for the /join landing (spec §7): who is inviting,
+ * into which stage. Read-only — nothing is consumed or counted.
+ */
+export async function peekInvitation(
+  rawSecret: string,
+): Promise<{ inviterName: string; stage: RelationshipStage } | null> {
+  if (!rawSecret.trim()) return null
+  return getRepositories().invitations.peekBySecretHash(hashInvitationSecret(rawSecret.trim()))
 }
 
 export async function revokeInvitation(inviterUserId: string): Promise<void> {
@@ -107,6 +120,10 @@ export async function acceptInvitation(
   }
 
   await repos.invitations.markUsed(invitation.id, accepterUserId)
+  // The accepter may have created their own invite while deciding — it is
+  // meaningless (and a dangling secret) once they are paired, so revoke it.
+  const own = await repos.invitations.getActiveForInviter(accepterUserId)
+  if (own) await repos.invitations.revoke(own.id, accepterUserId)
   const couple = await repos.couples.create({
     stage: invitation.relationshipStage,
     userIds: [invitation.inviterUserId, accepterUserId],

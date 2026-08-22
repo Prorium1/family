@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { HeartHandshake, Sparkles } from 'lucide-react'
+import { AutoRefresh } from '@/components/shared/auto-refresh'
 
 export const metadata = { title: '今日のふたり' }
 
@@ -46,6 +47,7 @@ export default async function HomePage({ searchParams }: PageProps<'/home'>) {
 
   return (
     <div className="space-y-5">
+      <AutoRefresh enabled={mySubmitted && !revealed} />
       {justPaired ? (
         <div className="animate-gentle-rise bg-wash rounded-card px-5 py-4 text-sm text-primary">
           <p className="font-semibold">{t.pairing.pairedTitle}</p>
