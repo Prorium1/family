@@ -53,6 +53,33 @@ export async function completeOnboarding(
   }
 }
 
+/**
+ * Has this person agreed to AI processing of what they write?
+ *
+ * Onboarding promises: 「同意しない場合も、AI以外のすべての機能を利用できます」.
+ * Keeping that promise means asking here before any text reaches a model —
+ * the consent record alone is not the guarantee, this check is.
+ */
+export async function hasAiProcessingConsent(userId: string): Promise<boolean> {
+  const consents = await getRepositories().consents.list(userId)
+  return [...consents].reverse().find((c) => c.kind === 'ai_processing')?.granted ?? false
+}
+
+/**
+ * A daily insight is built from BOTH voices, so it needs both agreements.
+ * If either partner has not agreed, the AI receives nothing at all — not
+ * even the half that did agree, because half of a conversation is exactly
+ * what this product refuses to interpret.
+ */
+export async function coupleAllowsAiProcessing(coupleId: string, viewerUserId: string): Promise<boolean> {
+  const membership = await getRepositories().couples.getById(coupleId, viewerUserId)
+  if (!membership) return false
+  const answers = await Promise.all(
+    membership.members.filter((m) => m.active).map((m) => hasAiProcessingConsent(m.userId)),
+  )
+  return answers.length > 0 && answers.every(Boolean)
+}
+
 export async function setAiTrainingConsent(userId: string, granted: boolean): Promise<void> {
   await getRepositories().consents.record({
     id: `co_${crypto.randomUUID()}`,

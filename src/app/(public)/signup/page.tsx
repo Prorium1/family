@@ -83,7 +83,9 @@ export default async function SignupPage({ searchParams }: PageProps<'/signup'>)
         <p className="mt-4 rounded-card bg-warning-soft px-4 py-3 text-sm text-warning" role="alert">
           {params.error === 'unconfigured'
             ? 'メールログインは現在準備中です。デモモードをご利用ください。'
-            : 'リンクを送信できませんでした。メールアドレスを確認して、もう一度お試しください。'}
+            : params.error === 'rate_limited'
+              ? '送信のリクエストが続いています。少し時間をおいて、もう一度お試しください。'
+              : 'リンクを送信できませんでした。メールアドレスを確認して、もう一度お試しください。'}
         </p>
       ) : null}
       <p className="mt-4 text-center text-sm text-text-muted">

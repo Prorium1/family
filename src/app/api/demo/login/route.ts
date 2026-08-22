@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
   const response = NextResponse.redirect(`${proto}://${host}${target}`, 303)
   response.cookies.set(DEMO_COOKIE, user.id, {
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
     maxAge: 60 * 60 * 24 * 30,

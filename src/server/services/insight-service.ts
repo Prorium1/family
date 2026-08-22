@@ -3,6 +3,7 @@ import { getRepositories } from '@/server/repositories'
 import { isRevealed, transition } from '@/server/policies/assignment-policy'
 import { isAiReadable } from '@/server/policies/visibility-policy'
 import { AI_SCHEMA_VERSION, dailyInsightSchema, type DailyInsight } from '@/lib/validation/ai-insight'
+import { coupleAllowsAiProcessing } from './settings-service'
 import { generateStructured, inputHashOf, AiGenerationError } from '@/lib/ai/client'
 import { LOVE_INTERPRETER_SYSTEM_PROMPT, wrapUserData } from '@/lib/ai/system-prompt'
 import { checkTextSafety, combineAssessments } from '@/lib/security/safety-checker'
@@ -21,7 +22,7 @@ import type { QuestionAssignment, AiInsightRecord, Answer } from '@/types/entiti
 const inFlight = new Map<string, Promise<void>>()
 
 interface InsightView {
-  status: 'none' | 'generating' | 'ready' | 'failed'
+  status: 'none' | 'generating' | 'ready' | 'failed' | 'consent_off'
   payload: DailyInsight | null
 }
 
@@ -30,6 +31,12 @@ export async function getInsightForAssignment(
   viewerUserId: string,
 ): Promise<InsightView> {
   if (!isRevealed(assignment.status)) return { status: 'none', payload: null }
+
+  // Consent first, before anything is read or generated (spec §4-2). Without
+  // it the couple still gets the reveal — they simply get it without the AI.
+  if (!(await coupleAllowsAiProcessing(assignment.coupleId, viewerUserId))) {
+    return { status: 'consent_off', payload: null }
+  }
 
   const repos = getRepositories()
 
@@ -88,6 +95,9 @@ export async function ensureDailyInsight(
   const context = await buildContext(assignmentId, viewerUserId)
   if (!context) return
   const { assignment, question, readable, safety } = context
+
+  // The last gate before any answer text leaves this process.
+  if (!(await coupleAllowsAiProcessing(assignment.coupleId, viewerUserId))) return
 
   // Injection-flagged input never reaches a model (spec §19).
   if (safety.injectionDetected) {

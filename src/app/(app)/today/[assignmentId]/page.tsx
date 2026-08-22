@@ -11,6 +11,7 @@ import { RevealPanel } from '@/features/daily-questions/components/reveal-panel'
 import { InsightCard } from '@/features/daily-questions/components/insight-card'
 import { InsightSkeleton } from '@/features/daily-questions/components/insight-skeleton'
 import { InsightFallback } from '@/features/daily-questions/components/insight-fallback'
+import { InsightConsentOff } from '@/features/daily-questions/components/insight-consent-off'
 import { markTalkedAction } from '@/server/actions/daily-actions'
 import { AutoRefresh } from '@/components/shared/auto-refresh'
 
@@ -94,6 +95,8 @@ export default async function TodayPage({ params }: PageProps<'/today/[assignmen
             <InsightSkeleton />
           ) : view.insightStatus === 'failed' ? (
             <InsightFallback assignmentId={view.assignmentId} />
+          ) : view.insightStatus === 'consent_off' ? (
+            <InsightConsentOff />
           ) : null}
 
           {view.status !== 'completed' ? (
