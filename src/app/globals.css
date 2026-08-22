@@ -37,7 +37,7 @@
   --primary: #9b45ba; /* the blend as readable text / icons */
   --primary-strong: #83319f;
   --primary-foreground: #ffffff; /* on the solid purple, not on the gradient */
-  --on-blend: #1f1a2b; /* ≥7:1 at every stop of the logo gradient */
+  --on-blend: #331a52; /* deep violet, on the mark's hue line — not black */
 
   /* ── Person identity: readable weights of each side of the logo ── */
   --person-a: #0a67d8;
@@ -111,7 +111,7 @@
   --primary-strong: #dcaae9;
   --primary-foreground: #2a0d33;
   /* the mark does not change with the theme, so neither does its ink */
-  --on-blend: #1f1a2b;
+  --on-blend: #331a52;
 
   --person-a: #8dc3fe;
   --person-b: #ff9db6;

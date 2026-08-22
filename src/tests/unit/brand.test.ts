@@ -131,6 +131,12 @@ describe('brand identity is the logo, measured (docs/BRAND.md §1)', () => {
     between(token('person-a'), 195, 230) // one person: blue side
     between(token('primary'), 260, 305) // together: the blend
     between(token('person-b'), 330, 360) // the other: pink side
+    between(token('on-blend'), 255, 305) // the ink on the mark: also the blend
+  })
+
+  it('keeps the ink on the mark chromatic — a black would read as dropped on', () => {
+    const { s } = rgbToHsl(token('on-blend'))
+    expect(s, `--on-blend saturation ${s.toFixed(0)}%`).toBeGreaterThanOrEqual(35)
   })
 })
 
@@ -154,9 +160,9 @@ const PAIRINGS: Array<[fg: string, bg: string, min: number]> = [
   ['primary-foreground', 'primary-strong', 4.5],
   // Primary buttons are filled with the logo gradient itself, so the ink
   // must stay readable at every stop of it — see docs/BRAND.md §4.
-  ['on-blend', 'brand-blue', 4.5],
-  ['on-blend', 'brand-purple', 4.5],
-  ['on-blend', 'brand-pink', 4.5],
+  ['on-blend', 'brand-blue', 6.0],
+  ['on-blend', 'brand-purple', 6.0],
+  ['on-blend', 'brand-pink', 6.0],
   ['person-a', 'surface', 4.5],
   ['person-a', 'person-a-soft', 4.5],
   ['person-b', 'surface', 4.5],
