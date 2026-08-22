@@ -67,7 +67,10 @@ type GlobalWithStore = typeof globalThis & {
 }
 
 function storePath(): string {
-  return process.env.DEMO_STORE_PATH ?? '.demo-store.json'
+  if (process.env.DEMO_STORE_PATH) return process.env.DEMO_STORE_PATH
+  // Serverless filesystems are read-only apart from /tmp, so a hosted demo
+  // persists there; locally the file sits next to the project.
+  return process.env.VERCEL ? '/tmp/family-demo-store.json' : '.demo-store.json'
 }
 
 function persistenceEnabled(): boolean {
