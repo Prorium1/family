@@ -18,6 +18,14 @@ export const RELATIONSHIP_STAGES = [
 ] as const
 export type RelationshipStage = (typeof RELATIONSHIP_STAGES)[number]
 
+/**
+ * Gender is self-description only. It picks the color of the entry button
+ * (docs/BRAND.md §3.1) and nothing else: pairing accepts every combination,
+ * and no question, insight or AI prompt is ever varied by it.
+ */
+export const GENDERS = ['male', 'female', 'other'] as const
+export type Gender = (typeof GENDERS)[number]
+
 export const COUPLE_STATUS = ['pending', 'active', 'unpaired'] as const
 export type CoupleStatus = (typeof COUPLE_STATUS)[number]
 

@@ -111,6 +111,7 @@ export function createSupabaseRepositories(): Repositories {
             ...(patch.locale !== undefined && { locale: patch.locale }),
             ...(patch.timezone !== undefined && { timezone: patch.timezone }),
             ...(patch.ageConfirmed !== undefined && { age_confirmed: patch.ageConfirmed }),
+            ...(patch.gender !== undefined && { gender: patch.gender }),
           })
           .eq('id', id)
           .select()

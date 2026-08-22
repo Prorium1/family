@@ -16,7 +16,7 @@ test.describe('招待リンクからのスムーズ参加 (spec §7 activation)'
   }) => {
     // A: onboarding ends with the invitation already on screen
     await loginAs(page, 'a', '/onboarding')
-    await onboardIfNeeded(page)
+    await onboardIfNeeded(page, { name: 'ゆき', gender: '女性' })
     await page.waitForURL(/\/pair\?auto=1/)
     await page.locator('[data-testid="invite-url"]').waitFor()
     const inviteUrl = (await page.locator('[data-testid="invite-url"]').textContent())?.trim() ?? ''
@@ -30,14 +30,15 @@ test.describe('招待リンクからのスムーズ参加 (spec §7 activation)'
     await page.context().clearCookies()
     await page.goto(inviteUrl)
     await page.waitForURL(/\/welcome/)
-    await expect(page.getByText('あかりさんから', { exact: false })).toBeVisible()
+    await expect(page.getByText('ゆきさんから', { exact: false })).toBeVisible()
 
-    // register as the partner persona — stage question must NOT appear
-    await page.getByRole('link', { name: 'ゆうと として参加する' }).click()
+    // the partner picks how they want to be described — same-gender couples
+    // take exactly the same path as anyone else
+    await page.getByRole('link', { name: '女性として参加する' }).click()
     await page.waitForURL(/\/onboarding/)
-    await expect(page.getByText('自動であかりさんとつながります', { exact: false })).toBeVisible()
+    await expect(page.getByText('自動でゆきさんとつながります', { exact: false })).toBeVisible()
     await expect(page.getByLabel('今の二人の関係')).toHaveCount(0)
-    await onboardIfNeeded(page)
+    await onboardIfNeeded(page, { name: 'あお', gender: '女性' })
 
     // …and they are already a couple, no code ever typed
     await page.waitForURL(/\/home\?paired=1/)
@@ -57,7 +58,7 @@ test.describe('招待リンクからのスムーズ参加 (spec §7 activation)'
     browser,
   }) => {
     await loginAs(page, 'a', '/onboarding')
-    await onboardIfNeeded(page)
+    await onboardIfNeeded(page, { name: 'ひかる', gender: '男性' })
     await page.locator('[data-testid="invite-url"]').waitFor()
     const inviteUrl = (await page.locator('[data-testid="invite-url"]').textContent())?.trim() ?? ''
 
@@ -65,8 +66,8 @@ test.describe('招待リンクからのスムーズ参加 (spec §7 activation)'
     const partnerContext = await browser.newContext()
     const partnerPage = await partnerContext.newPage()
     await partnerPage.goto(inviteUrl)
-    await partnerPage.getByRole('link', { name: 'ゆうと として参加する' }).click()
-    await onboardIfNeeded(partnerPage)
+    await partnerPage.getByRole('link', { name: '男性として参加する' }).click()
+    await onboardIfNeeded(partnerPage, { name: 'かい', gender: '男性' })
     await partnerPage.waitForURL(/\/home\?paired=1/)
     await partnerContext.close()
 

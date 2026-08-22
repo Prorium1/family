@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import { isDemoMode } from '@/config/env'
+import { ANY_PAIRING_NOTE, GENDER_OPTIONS } from '@/lib/ui/gender'
+import { GenderChoice } from '@/features/auth/components/gender-choice'
 import { PageTitle } from '@/components/shared/page-title'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -8,6 +10,11 @@ import { Label } from '@/components/ui/label'
 
 export const metadata = { title: 'ふたりではじめる' }
 
+/** Demo entry: the first person, with the gender they just picked. */
+function demoEntry(gender: string): string {
+  return `/api/demo/login?user=a&next=${encodeURIComponent(`/onboarding?gender=${gender}`)}`
+}
+
 export default async function SignupPage({ searchParams }: PageProps<'/signup'>) {
   const params = await searchParams
   return (
@@ -15,37 +22,35 @@ export default async function SignupPage({ searchParams }: PageProps<'/signup'>)
       <PageTitle title="ふたりではじめる" subtitle="登録は60秒。合言葉もパスワードも不要です。" />
       <ol className="mb-5 space-y-2 text-sm text-text-muted">
         <li className="flex gap-2">
-          <span className="text-primary font-bold">1.</span>
+          <span className="text-primary shrink-0 font-bold">1.</span>
           あなたが登録すると、招待リンクとQRコードがすぐに表示されます
         </li>
         <li className="flex gap-2">
-          <span className="text-primary font-bold">2.</span>
+          <span className="text-primary shrink-0 font-bold">2.</span>
           パートナーはリンクをタップして登録するだけで、自動的につながります
         </li>
         <li className="flex gap-2">
-          <span className="text-primary font-bold">3.</span>
+          <span className="text-primary shrink-0 font-bold">3.</span>
           その日のうちに、最初の質問に二人で答えられます
         </li>
       </ol>
       {isDemoMode ? (
         <Card>
           <CardHeader>
-            <CardTitle>デモで体験する</CardTitle>
+            <CardTitle>あなたから登録する</CardTitle>
             <CardDescription>
-              「あかり」で登録 → 招待コードを作成 → 「ゆうと」に切り替えて参加、という流れを体験できます。
+              選んだほうで登録が始まります。次の画面に出る招待リンクを送れば、パートナーも同じように選んで参加できます。
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button asChild className="w-full">
-              <Link href="/api/demo/login?user=a&next=/onboarding" prefetch={false}>
-                あかり として登録する
-              </Link>
-            </Button>
-            <Button asChild variant="secondary" className="w-full">
-              <Link href="/api/demo/login?user=b&next=/onboarding" prefetch={false}>
-                ゆうと として登録する
-              </Link>
-            </Button>
+            {GENDER_OPTIONS.map((option) => (
+              <Button key={option.value} asChild variant={option.variant} className="w-full">
+                <Link href={demoEntry(option.value)} prefetch={false}>
+                  {option.entryLabel('はじめる')}
+                </Link>
+              </Button>
+            ))}
+            <p className="text-xs text-text-muted">{ANY_PAIRING_NOTE}</p>
           </CardContent>
         </Card>
       ) : (
@@ -61,6 +66,7 @@ export default async function SignupPage({ searchParams }: PageProps<'/signup'>)
                 <Label htmlFor="email">メールアドレス</Label>
                 <Input id="email" name="email" type="email" required autoComplete="email" />
               </div>
+              <GenderChoice />
               <Button type="submit" className="w-full">
                 登録リンクを送る
               </Button>

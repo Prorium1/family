@@ -25,6 +25,7 @@ export async function completeOnboardingAction(
   const consented = formData.get('consent') === 'on'
   const parsed = onboardingSchema.safeParse({
     displayName: formData.get('displayName'),
+    gender: formData.get('gender'),
     locale: formData.get('locale') ?? 'ja',
     timezone: formData.get('timezone') || 'Asia/Tokyo',
     stage: formData.get('stage'),

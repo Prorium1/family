@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
  * Button variants follow docs/BRAND.md §3 — the fill says whose action it is.
  *
  *   primary   the blend      something the two do together (one per screen)
+ *   brandA/B  the circles    "which of the two are you?" — registration only
  *   personA   blue side      something that belongs to you
  *   personB   pink side      something that belongs to your partner
  *   outline   neutral        secondary paths
@@ -21,6 +22,11 @@ const buttonVariants = cva(
         // The logo itself, as a fill: 水色 → 紫 → ピンク. Dark ink, because
         // the mark's own colors are too light to carry white (§4).
         primary: 'bg-blend text-on-blend shadow-card hover:opacity-90',
+        // The mark's two circles as solid fills. Reserved for the one place
+        // where the question is "which of the two are you?" — the gender
+        // choice at registration (§3.1). Dark ink, like every brand fill.
+        brandA: 'bg-brand-blue text-on-blend shadow-card hover:opacity-90',
+        brandB: 'bg-brand-pink text-on-blend shadow-card hover:opacity-90',
         secondary: 'bg-primary text-primary-foreground hover:bg-primary-strong',
         outline: 'border border-border bg-surface text-text hover:bg-surface-muted',
         ghost: 'text-text hover:bg-surface-muted',

@@ -1,6 +1,6 @@
 import 'server-only'
 import { getRepositories } from '@/server/repositories'
-import type { LocaleCode, RelationshipStage } from '@/types/domain'
+import type { Gender, LocaleCode, RelationshipStage } from '@/types/domain'
 import type { NotificationPreference } from '@/types/entities'
 
 /**
@@ -12,6 +12,7 @@ export async function completeOnboarding(
   userId: string,
   input: {
     displayName: string
+    gender: Gender
     locale: LocaleCode
     timezone: string
     ageConfirmed: boolean
@@ -23,6 +24,7 @@ export async function completeOnboarding(
   const repos = getRepositories()
   await repos.profiles.update(userId, {
     displayName: input.displayName,
+    gender: input.gender,
     locale: input.locale,
     timezone: input.timezone,
     ageConfirmed: input.ageConfirmed,

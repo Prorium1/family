@@ -54,6 +54,7 @@ import type {
 export interface ProfileRow {
   id: string
   display_name: string
+  gender: string | null
   locale: string
   timezone: string
   age_confirmed: boolean
@@ -67,6 +68,7 @@ export function mapProfile(row: ProfileRow, email = ''): Profile {
     id: row.id,
     displayName: row.display_name,
     email,
+    gender: (row.gender as Profile['gender']) ?? null,
     locale: row.locale as LocaleCode,
     timezone: row.timezone,
     ageConfirmed: row.age_confirmed,

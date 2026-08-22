@@ -327,7 +327,62 @@ describe('the blend carries dark ink, never white (§4)', () => {
   })
 })
 
-// ── 9. The rulebook itself must stay in the repo ────────────────────
+// ── 9. Gender picks an entry color, never a content color ──────────
+describe('gender never decides a person’s color (§3.1)', () => {
+  const files = walk(['src/components', 'src/features', 'src/app']).filter((f) =>
+    f.endsWith('.tsx'),
+  )
+
+  it('keeps the gender → color map in exactly one module', () => {
+    const map = readFileSync('src/lib/ui/gender.ts', 'utf8')
+    expect(map).toContain('bg-brand-blue')
+    expect(map).toContain('bg-brand-pink')
+  })
+
+  it('always offers a third option — the two circles are not a binary', () => {
+    const map = readFileSync('src/lib/ui/gender.ts', 'utf8')
+    const values = [...map.matchAll(/value:\s*'([a-z_]+)'/g)].map((m) => m[1])
+    expect(values.length).toBeGreaterThanOrEqual(3)
+  })
+
+  it('never derives the person colors from gender in a component', () => {
+    const offenders: string[] = []
+    for (const file of files) {
+      readFileSync(file, 'utf8')
+        .split('\n')
+        .forEach((line, i) => {
+          if (!/gender/i.test(line)) return
+          if (/-person-[ab]\b/.test(line)) offenders.push(`${file}:${i + 1} ${line.trim()}`)
+        })
+    }
+    expect(offenders).toEqual([])
+  })
+
+  it('carries dark ink on every solid brand fill, exactly as the gradient does', () => {
+    const offenders: string[] = []
+    for (const file of [...files, 'src/lib/ui/gender.ts', 'src/components/ui/button.tsx']) {
+      for (const line of readFileSync(file, 'utf8').split('\n')) {
+        if (!/bg-brand-(?:blue|purple|pink)\b/.test(line)) continue
+        if (!line.includes('text-on-blend')) offenders.push(`${file}: ${line.trim()}`)
+      }
+    }
+    expect(offenders).toEqual([])
+  })
+})
+
+// ── 10. Copy must not assume a gender (§6) ──────────────────────────
+describe('the words never assume who the partner is (§6)', () => {
+  it('calls them パートナー — never 彼氏/彼女/旦那/奥さん', () => {
+    const files = walk(['src/components', 'src/features', 'src/app']).filter((f) =>
+      f.endsWith('.tsx'),
+    )
+    const banned = /彼氏|彼女|旦那|奥さん|ご主人/
+    const offenders = files.filter((f) => banned.test(readFileSync(f, 'utf8')))
+    expect(offenders).toEqual([])
+  })
+})
+
+// ── 11. The rulebook itself must stay in the repo ───────────────────
 describe('the rulebook is present and linked (§8)', () => {
   it('ships docs/BRAND.md', () => {
     const doc = readFileSync('docs/BRAND.md', 'utf8')

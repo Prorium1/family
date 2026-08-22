@@ -20,25 +20,25 @@ export default async function LoginPage({ searchParams }: PageProps<'/login'>) {
       {isDemoMode ? (
         <Card>
           <CardHeader>
-            <CardTitle>デモユーザーでログイン</CardTitle>
+            <CardTitle>デモの席を選ぶ</CardTitle>
             <CardDescription>
-              デモモードでは、二人のデモユーザーを切り替えながら体験できます。
+              二人ぶんの席を切り替えながら、同じ体験を両側から確認できます。まだ登録していない席は、そのまま登録画面に進みます。
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <Button asChild className="w-full">
               <Link href="/api/demo/login?user=a&next=/home" prefetch={false}>
-                あかり として始める
-              </Link>
-            </Button>
-            <Button asChild variant="secondary" className="w-full">
-              <Link href="/api/demo/login?user=b&next=/home" prefetch={false}>
-                ゆうと として始める
+                1人目の席ではじめる
               </Link>
             </Button>
             <Button asChild variant="outline" className="w-full">
+              <Link href="/api/demo/login?user=b&next=/home" prefetch={false}>
+                2人目の席ではじめる
+              </Link>
+            </Button>
+            <Button asChild variant="ghost" className="w-full">
               <Link href="/api/demo/login?user=c&next=/home" prefetch={false}>
-                みなと として始める（第三者の視点）
+                第三者の視点で確認する
               </Link>
             </Button>
           </CardContent>

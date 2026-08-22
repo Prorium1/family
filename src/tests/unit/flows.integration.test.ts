@@ -22,10 +22,20 @@ import {
 } from '@/server/services/repair-service'
 import { exportUserData } from '@/server/services/settings-service'
 import { MAX_INVITATION_ATTEMPTS } from '@/lib/security/invitation-token'
+import type { Gender } from '@/types/domain'
 
 const A = 'demo-user-a'
 const B = 'demo-user-b'
 const C = 'demo-user-c'
+
+/** Register a demo account the way onboarding does — accounts start blank. */
+async function register(
+  userId: string,
+  displayName: string,
+  gender: Gender = 'other',
+): Promise<void> {
+  await getRepositories().profiles.update(userId, { displayName, gender })
+}
 
 async function pairAB(): Promise<string> {
   const invite = await createInvitation(A, 'dating')
@@ -39,6 +49,7 @@ beforeEach(() => {
 
 describe('pairing flow (spec §37-1)', () => {
   it('pairs A and B into the same couple via the 6-digit code', async () => {
+    await register(B, '2人目')
     const coupleId = await pairAB()
     const statusA = await getPairStatus(A)
     const statusB = await getPairStatus(B)
@@ -46,7 +57,7 @@ describe('pairing flow (spec §37-1)', () => {
     expect(statusB.paired).toBe(true)
     expect(statusA.couple?.coupleId).toBe(coupleId)
     expect(statusB.couple?.coupleId).toBe(coupleId)
-    expect(statusA.couple?.partner?.displayName).toBe('ゆうと')
+    expect(statusA.couple?.partner?.displayName).toBe('2人目')
   })
 
   it('rejects an invalid code and locks after repeated attempts', async () => {
@@ -328,14 +339,48 @@ describe('safety-paused sessions are invisible to the partner (spec §4-5)', () 
   })
 })
 
+describe('who may pair (docs/BRAND.md §3.1)', () => {
+  it('pairs two people of the same gender exactly like any other couple', async () => {
+    await register(A, 'ひとり目', 'male')
+    await register(B, 'ふたり目', 'male')
+    const coupleId = await pairAB()
+
+    const statusA = await getPairStatus(A)
+    const statusB = await getPairStatus(B)
+    expect(statusA.paired).toBe(true)
+    expect(statusB.paired).toBe(true)
+    expect(statusA.couple?.coupleId).toBe(coupleId)
+    expect(statusB.couple?.coupleId).toBe(coupleId)
+
+    // …and the daily loop is the same loop, with nothing varied by gender
+    const assignment = await ensureTodayAssignment(coupleId, A)
+    const viewA = await getTodayView(assignment.id, A)
+    const viewB = await getTodayView(assignment.id, B)
+    expect(viewA?.question.id).toBe(viewB?.question.id)
+    expect(viewA?.question.id).toBeTruthy()
+  })
+
+  it('keeps gender as self-description only — it never reaches the couple', async () => {
+    await register(A, 'ひとり目', 'female')
+    await register(B, 'ふたり目', 'female')
+    const coupleId = await pairAB()
+
+    const couple = getDemoStore().couples.find((c) => c.id === coupleId)
+    expect(JSON.stringify(couple)).not.toContain('female')
+    const profileA = await getRepositories().profiles.getById(A)
+    expect(profileA?.gender).toBe('female')
+  })
+})
+
 describe('smooth activation (spec §7)', () => {
   it('peekInvitation reveals inviter name and stage for both token and code — without consuming', async () => {
     const { peekInvitation } = await import('@/server/services/pairing-service')
+    await register(A, '1人目')
     const invite = await createInvitation(A, 'engaged')
     const rawToken = invite.inviteUrl.split('/join/')[1]
 
-    expect(await peekInvitation(rawToken)).toEqual({ inviterName: 'あかり', stage: 'engaged' })
-    expect(await peekInvitation(invite.code)).toEqual({ inviterName: 'あかり', stage: 'engaged' })
+    expect(await peekInvitation(rawToken)).toEqual({ inviterName: '1人目', stage: 'engaged' })
+    expect(await peekInvitation(invite.code)).toEqual({ inviterName: '1人目', stage: 'engaged' })
     // peeking twice — nothing consumed, still redeemable
     await acceptInvitation(B, invite.code)
     expect((await getPairStatus(B)).paired).toBe(true)

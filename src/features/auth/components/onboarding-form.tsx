@@ -5,7 +5,8 @@ import {
   completeOnboardingAction,
   type OnboardingActionState,
 } from '@/server/actions/onboarding-actions'
-import { RELATIONSHIP_STAGES, type RelationshipStage } from '@/types/domain'
+import { RELATIONSHIP_STAGES, type Gender, type RelationshipStage } from '@/types/domain'
+import { GenderChoice } from './gender-choice'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -37,10 +38,12 @@ const stageLabels: Record<RelationshipStage, string> = {
  */
 export function OnboardingForm({
   initialName,
+  initialGender,
   invited,
   inviterName,
 }: {
   initialName: string
+  initialGender: Gender | null
   invited: boolean
   inviterName?: string
 }) {
@@ -66,14 +69,17 @@ export function OnboardingForm({
           id="displayName"
           name="displayName"
           defaultValue={initialName}
+          placeholder="ニックネームでも構いません"
           required
+          autoFocus
           maxLength={30}
           autoComplete="nickname"
         />
-        <p className="text-xs text-text-muted">
-          パートナーに表示される名前です。ニックネームでも構いません。
-        </p>
+        <p className="text-xs text-text-muted">パートナーに表示される名前です。</p>
       </div>
+
+      {/* The mark's two circles, offered as the two entry colors (§3.1). */}
+      <GenderChoice initial={initialGender} />
 
       {!invited ? (
         <div className="space-y-1.5">
