@@ -5,6 +5,8 @@ import { appConfig } from '@/config/app'
 import { getSession } from '@/lib/auth/session'
 import { clearInviteToken, readInviteToken } from '@/lib/auth/invite-cookie'
 import { acceptInvitation, PairingError, peekInvitation } from '@/server/services/pairing-service'
+import { ANY_PAIRING_NOTE, GENDER_OPTIONS } from '@/lib/ui/gender'
+import { GenderChoice } from '@/features/auth/components/gender-choice'
 import { BrandMark } from '@/components/shared/brand-mark'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -12,6 +14,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
 export const metadata = { title: '招待が届いています' }
+
+/** Demo entry for the invited side: the second person, gender as picked. */
+function demoJoin(gender: string): string {
+  return `/api/demo/login?user=b&next=${encodeURIComponent(`/onboarding?gender=${gender}`)}`
+}
 
 const stageLabels: Record<string, string> = {
   dating: '恋人',
@@ -113,14 +120,14 @@ export default async function WelcomePage({ searchParams }: PageProps<'/welcome'
 
       <ol className="mx-auto mt-6 max-w-xs space-y-2 text-sm text-text-muted">
         <li className="flex gap-2">
-          <span className="text-primary font-bold">1.</span> 名前を決めて登録（30秒）
+          <span className="text-primary shrink-0 font-bold">1.</span> 名前を決めて登録（30秒）
         </li>
         <li className="flex gap-2">
-          <span className="text-primary font-bold">2.</span> 自動で{invitation.inviterName}
+          <span className="text-primary shrink-0 font-bold">2.</span> 自動で{invitation.inviterName}
           さんとつながる
         </li>
         <li className="flex gap-2">
-          <span className="text-primary font-bold">3.</span> 今日の質問に、それぞれ答える
+          <span className="text-primary shrink-0 font-bold">3.</span> 今日の質問に、それぞれ答える
         </li>
       </ol>
 
@@ -128,7 +135,7 @@ export default async function WelcomePage({ searchParams }: PageProps<'/welcome'
         <CardHeader>
           <CardTitle>無料で参加する</CardTitle>
           {isDemoMode ? (
-            <CardDescription>デモモード: デモユーザーを選ぶとすぐに体験できます。</CardDescription>
+            <CardDescription>選ぶとすぐに登録に進みます。</CardDescription>
           ) : (
             <CardDescription>メールアドレスだけで登録できます。</CardDescription>
           )}
@@ -136,16 +143,14 @@ export default async function WelcomePage({ searchParams }: PageProps<'/welcome'
         <CardContent className="space-y-3">
           {isDemoMode ? (
             <>
-              <Button asChild className="w-full">
-                <Link href="/api/demo/login?user=b&next=/onboarding" prefetch={false}>
-                  ゆうと として参加する
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="w-full">
-                <Link href="/api/demo/login?user=c&next=/onboarding" prefetch={false}>
-                  みなと として参加する
-                </Link>
-              </Button>
+              {GENDER_OPTIONS.map((option) => (
+                <Button key={option.value} asChild variant={option.variant} className="w-full">
+                  <Link href={demoJoin(option.value)} prefetch={false}>
+                    {option.entryLabel('参加する')}
+                  </Link>
+                </Button>
+              ))}
+              <p className="text-xs text-text-muted">{ANY_PAIRING_NOTE}</p>
             </>
           ) : (
             <form className="space-y-3" action="/api/auth/magic-link" method="post">
@@ -154,6 +159,7 @@ export default async function WelcomePage({ searchParams }: PageProps<'/welcome'
                 <Label htmlFor="welcome-email">メールアドレス</Label>
                 <Input id="welcome-email" name="email" type="email" required autoComplete="email" />
               </div>
+              <GenderChoice />
               <Button type="submit" className="w-full">
                 登録リンクを受け取る
               </Button>

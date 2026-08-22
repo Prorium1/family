@@ -43,7 +43,7 @@ export interface Repositories {
     getById(id: string): Promise<Profile | null>
     /** Create the profile on first login when it does not exist yet. */
     ensure(id: string, defaults: { displayName: string; email: string }): Promise<Profile>
-    update(id: string, patch: Partial<Pick<Profile, 'displayName' | 'locale' | 'timezone' | 'ageConfirmed'>>): Promise<Profile>
+    update(id: string, patch: Partial<Pick<Profile, 'displayName' | 'locale' | 'timezone' | 'ageConfirmed' | 'gender'>>): Promise<Profile>
   }
   couples: {
     getForUser(userId: string): Promise<{ couple: Couple; members: CoupleMember[] } | null>

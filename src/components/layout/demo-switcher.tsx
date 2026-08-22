@@ -3,10 +3,18 @@ import { DEMO_USERS } from '@/lib/auth/demo-users'
 import { cn } from '@/lib/utils'
 
 /**
- * Demo-mode banner: switch between the two demo partners (and the third-party
- * persona) to walk the pairing → reveal experience from both sides.
+ * Demo-mode banner: switch between the two sides of the couple (and the
+ * third party) to walk the pairing → reveal experience from both seats.
+ * Accounts are blank until someone registers, so each chip shows the name
+ * that person typed, falling back to their role in the walkthrough.
  */
-export function DemoSwitcher({ currentUserId }: { currentUserId: string | null }) {
+export function DemoSwitcher({
+  currentUserId,
+  names = {},
+}: {
+  currentUserId: string | null
+  names?: Record<string, string>
+}) {
   return (
     <div className="border-b border-warning/30 bg-warning-soft px-3 py-1.5 text-xs text-warning">
       <div className="mx-auto flex max-w-3xl flex-wrap items-center gap-x-3 gap-y-1">
@@ -26,7 +34,7 @@ export function DemoSwitcher({ currentUserId }: { currentUserId: string | null }
                   : 'border-warning/40 hover:bg-warning/10',
               )}
             >
-              {user.displayName}
+              {names[user.id]?.trim() || user.label}
             </Link>
           ))}
         </div>

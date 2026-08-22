@@ -26,6 +26,7 @@ export const demoProfiles: Repositories['profiles'] = {
         id,
         displayName: defaults.displayName,
         email: defaults.email,
+        gender: null,
         locale: 'ja',
         timezone: 'Asia/Tokyo',
         ageConfirmed: false,

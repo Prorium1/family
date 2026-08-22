@@ -1,8 +1,9 @@
 import { z } from 'zod'
-import { FUTURE_CATEGORIES, RELATIONSHIP_STAGES, VISIBILITY_LEVELS } from '@/types/domain'
+import { FUTURE_CATEGORIES, GENDERS, RELATIONSHIP_STAGES, VISIBILITY_LEVELS } from '@/types/domain'
 
 export const onboardingSchema = z.object({
   displayName: z.string().trim().min(1, '表示名を入力してください').max(30),
+  gender: z.enum(GENDERS, { error: '性別を選んでください' }),
   locale: z.enum(['ja', 'en']),
   timezone: z.string().min(1),
   stage: z.enum(RELATIONSHIP_STAGES),

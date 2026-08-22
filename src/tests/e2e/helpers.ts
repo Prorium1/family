@@ -15,18 +15,24 @@ export async function loginAs(page: Page, key: 'a' | 'b' | 'c', next = '/home'):
 }
 
 /**
- * Complete the onboarding form when it is shown. An already-onboarded user
- * is redirected away by the server — in that case the form never appears and
- * this helper simply returns.
+ * Complete the onboarding form when it is shown: a name, how you want to be
+ * described, one consent, one tap. Demo accounts start blank — nobody is
+ * handed a ready-made persona — so the name is always typed here. An
+ * already-onboarded user is redirected away by the server, in which case the
+ * form never appears and this helper simply returns.
  */
-export async function onboardIfNeeded(page: Page): Promise<void> {
-  // one combined consent checkbox now — spec §7 with minimal taps
+export async function onboardIfNeeded(
+  page: Page,
+  { name = '1人目', gender = 'その他' }: { name?: string; gender?: string } = {},
+): Promise<void> {
   const consent = page.getByRole('checkbox', { name: /18歳以上/ })
   const appeared = await consent
     .waitFor({ timeout: 5000 })
     .then(() => true)
     .catch(() => false)
   if (!appeared) return
+  await page.getByLabel('表示名').fill(name)
+  await page.getByText(gender, { exact: true }).click()
   await consent.click()
   await page.getByRole('button', { name: /はじめる/ }).click()
   await page.waitForURL(/\/(pair|home)/)
@@ -55,14 +61,14 @@ export async function ensureInviteVisible(page: Page): Promise<void> {
 
 export async function pairCoupleViaUi(page: Page): Promise<string> {
   await loginAs(page, 'a', '/onboarding')
-  await onboardIfNeeded(page)
+  await onboardIfNeeded(page, { name: '1人目', gender: '男性' })
   await page.waitForURL(/\/pair/)
   await ensureInviteVisible(page)
   const code = (await page.locator(SELECTORS.inviteCode).textContent())?.trim() ?? ''
   expect(code).toMatch(/^\d{6}$/)
 
   await loginAs(page, 'b', '/onboarding')
-  await onboardIfNeeded(page)
+  await onboardIfNeeded(page, { name: '2人目', gender: '男性' })
   await page.waitForURL(/\/pair/)
   await page.getByLabel('招待コード').fill(code)
   await page.getByRole('button', { name: '参加する' }).click()

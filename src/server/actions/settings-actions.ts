@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { requireOnboardedSession, requireSession } from '@/lib/auth/session'
 import { getRepositories } from '@/server/repositories'
+import { GENDERS } from '@/types/domain'
 import { unpairCouple } from '@/server/services/pairing-service'
 import {
   requestDataDeletion,
@@ -15,8 +16,13 @@ import {
 export async function updateProfileAction(formData: FormData): Promise<void> {
   const session = await requireSession()
   const displayName = z.string().trim().min(1).max(30).safeParse(formData.get('displayName'))
-  if (displayName.success) {
-    await getRepositories().profiles.update(session.userId, { displayName: displayName.data })
+  const gender = z.enum(GENDERS).safeParse(formData.get('gender'))
+  const patch = {
+    ...(displayName.success && { displayName: displayName.data }),
+    ...(gender.success && { gender: gender.data }),
+  }
+  if (Object.keys(patch).length > 0) {
+    await getRepositories().profiles.update(session.userId, patch)
   }
   revalidatePath('/settings/profile')
 }

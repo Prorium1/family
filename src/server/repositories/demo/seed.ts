@@ -8,9 +8,10 @@ export const DEMO_USER_IDS = {
 } as const
 
 /**
- * Fresh demo world: four personas, no couple yet — pairing is exercised live
- * in the walkthrough. User C exists to prove third-party isolation (§37);
- * the admin persona only sees the admin surface.
+ * Fresh demo world: four blank accounts, no couple yet — the walkthrough
+ * registers them live, so nobody is handed a ready-made identity. Names and
+ * gender are whatever the visitor types. User C exists to prove third-party
+ * isolation (§37); the admin persona only sees the admin surface.
  */
 export function buildSeedStore(): DemoStore {
   const t = new Date().toISOString()
@@ -19,8 +20,9 @@ export function buildSeedStore(): DemoStore {
     profiles: [
       {
         id: DEMO_USER_IDS.a,
-        displayName: 'あかり',
-        email: 'akari@example.com',
+        displayName: '',
+        email: 'demo-a@example.com',
+        gender: null,
         locale: 'ja',
         timezone: 'Asia/Tokyo',
         ageConfirmed: true,
@@ -30,8 +32,9 @@ export function buildSeedStore(): DemoStore {
       },
       {
         id: DEMO_USER_IDS.b,
-        displayName: 'ゆうと',
-        email: 'yuto@example.com',
+        displayName: '',
+        email: 'demo-b@example.com',
+        gender: null,
         locale: 'ja',
         timezone: 'Asia/Tokyo',
         ageConfirmed: true,
@@ -41,8 +44,9 @@ export function buildSeedStore(): DemoStore {
       },
       {
         id: DEMO_USER_IDS.c,
-        displayName: 'みなと',
-        email: 'minato@example.com',
+        displayName: '',
+        email: 'demo-c@example.com',
+        gender: null,
         locale: 'ja',
         timezone: 'Asia/Tokyo',
         ageConfirmed: true,
@@ -54,6 +58,7 @@ export function buildSeedStore(): DemoStore {
         id: DEMO_USER_IDS.admin,
         displayName: '管理者',
         email: 'admin@example.com',
+        gender: null,
         locale: 'ja',
         timezone: 'Asia/Tokyo',
         ageConfirmed: true,

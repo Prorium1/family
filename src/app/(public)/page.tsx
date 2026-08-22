@@ -34,6 +34,8 @@ export default function LandingPage() {
           </Button>
           <p className="mt-3 text-xs text-text-muted">
             登録は60秒。パートナーは届いたリンクをタップするだけで参加できます。
+            <br />
+            男性同士・女性同士でも、まったく同じようにお使いいただけます。
           </p>
         </div>
       </section>
@@ -198,6 +200,13 @@ export default function LandingPage() {
             </AccordionContent>
           </AccordionItem>
           <AccordionItem value="q4">
+            <AccordionTrigger>同性のカップルでも使えますか？</AccordionTrigger>
+            <AccordionContent>
+              はい。登録時に選ぶ性別は自己紹介のためだけのもので、組み合わせに制限はありません。
+              質問もAIのメッセージも、どの二人にも同じように届きます。
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="q5">
             <AccordionTrigger>途中でやめたくなったら？</AccordionTrigger>
             <AccordionContent>
               ペア解除、データのエクスポート、削除申請はいつでも無料でできます。これらの機能が有料になることはありません。
@@ -207,9 +216,9 @@ export default function LandingPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-secondary">
+      <section className="bg-wash">
         <div className="mx-auto max-w-3xl px-4 py-16 text-center">
-          <h2 className="text-xl font-bold text-secondary-foreground">
+          <h2 className="text-xl font-bold">
             今日の5分から、はじめよう。
           </h2>
           <Button asChild size="lg" variant="primary" className="mt-6">

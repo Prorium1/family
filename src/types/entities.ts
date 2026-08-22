@@ -4,6 +4,7 @@ import type {
   Confidence,
   CoupleStatus,
   FutureCategory,
+  Gender,
   JourneyProgressStatus,
   LocaleCode,
   ManualSourceType,
@@ -28,6 +29,8 @@ export interface Profile {
   id: string
   displayName: string
   email: string
+  /** Self-described, optional, and never used to vary content. */
+  gender: Gender | null
   locale: LocaleCode
   timezone: string
   ageConfirmed: boolean
