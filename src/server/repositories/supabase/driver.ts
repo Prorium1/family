@@ -6,6 +6,7 @@ import { aiReadableText, redactEntryForPartner } from '@/server/policies/visibil
 import type { Repositories } from '../repository-types'
 import {
   mapAgreement,
+  mapWeEntry,
   mapAgreementRevision,
   mapAnswer,
   mapAssignment,
@@ -31,6 +32,7 @@ import {
   mapTimeline,
   type AgreementRevisionRow,
   type AgreementRow,
+  type WeEntryRow,
   type AnswerRow,
   type AssignmentRow,
   type CheckinAnswerRow,
@@ -863,6 +865,53 @@ export function createSupabaseRepositories(): Repositories {
           .single()
         throwIf(error)
         return mapRepairAgreement(data as RepairAgreementRow)
+      },
+    },
+
+    weEntries: {
+      async list(coupleId) {
+        const client = await db()
+        const { data, error } = await client
+          .from('we_entries')
+          .select('*')
+          .eq('couple_id', coupleId)
+          .order('created_at', { ascending: false })
+        throwIf(error)
+        return ((data ?? []) as WeEntryRow[]).map(mapWeEntry)
+      },
+      async findBySource(coupleId, sourceType, sourceId) {
+        const client = await db()
+        const { data, error } = await client
+          .from('we_entries')
+          .select('*')
+          .eq('couple_id', coupleId)
+          .eq('source_type', sourceType)
+          .eq('source_id', sourceId)
+        throwIf(error)
+        return ((data ?? []) as WeEntryRow[]).map(mapWeEntry)
+      },
+      async create(entry) {
+        const client = await db()
+        const { data, error } = await client
+          .from('we_entries')
+          .insert({
+            couple_id: entry.coupleId,
+            kind: entry.kind,
+            title: entry.title,
+            body: entry.body,
+            source_type: entry.sourceType,
+            source_id: entry.sourceId,
+            created_by_user_id: entry.createdByUserId,
+          })
+          .select()
+          .single()
+        throwIf(error)
+        return mapWeEntry(data as WeEntryRow)
+      },
+      async remove(id) {
+        const client = await db()
+        const { error } = await client.from('we_entries').delete().eq('id', id)
+        throwIf(error)
       },
     },
 

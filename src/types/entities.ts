@@ -5,6 +5,8 @@ import type {
   CoupleStatus,
   FutureCategory,
   Gender,
+  WeEntryKind,
+  WeEntrySource,
   JourneyProgressStatus,
   LocaleCode,
   ManualSourceType,
@@ -37,6 +39,22 @@ export interface Profile {
   isAdmin: boolean
   createdAt: string
   updatedAt: string
+}
+
+/**
+ * One entry in the couple's NEW WE. Always written by a person — the AI only
+ * ever drafts (docs/BRAND.md §0.2), so `createdByUserId` is a real member.
+ */
+export interface WeEntry {
+  id: string
+  coupleId: string
+  kind: WeEntryKind
+  title: string
+  body: string
+  sourceType: WeEntrySource
+  sourceId: string | null
+  createdByUserId: string
+  createdAt: string
 }
 
 export interface Couple {
@@ -294,6 +312,7 @@ export interface TimelineEvent {
     | 'paired'
     | 'journey_completed'
     | 'agreement_created'
+    | 'new_we_saved'
     | 'marriage_talk_started'
     | 'marriage_declaration'
     | 'engaged'

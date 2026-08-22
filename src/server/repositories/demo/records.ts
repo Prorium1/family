@@ -47,6 +47,43 @@ export const demoAgreements: Repositories['agreements'] = {
   },
 }
 
+export const demoWeEntries: Repositories['weEntries'] = {
+  async list(coupleId, viewerUserId) {
+    const store = getDemoStore()
+    if (!isActiveMember(store.coupleMembers, coupleId, viewerUserId)) return []
+    return store.weEntries
+      .filter((e) => e.coupleId === coupleId)
+      .map((e) => ({ ...e }))
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+  },
+  async findBySource(coupleId, sourceType, sourceId) {
+    return getDemoStore()
+      .weEntries.filter(
+        (e) => e.coupleId === coupleId && e.sourceType === sourceType && e.sourceId === sourceId,
+      )
+      .map((e) => ({ ...e }))
+  },
+  async create(entry) {
+    return mutateDemoStore((store) => {
+      if (!isActiveMember(store.coupleMembers, entry.coupleId, entry.createdByUserId)) {
+        throw new Error('not a couple member')
+      }
+      store.weEntries.push({ ...entry })
+      return { ...entry }
+    })
+  },
+  async remove(id, viewerUserId) {
+    mutateDemoStore((store) => {
+      const index = store.weEntries.findIndex((e) => e.id === id)
+      if (index === -1) return
+      if (!isActiveMember(store.coupleMembers, store.weEntries[index].coupleId, viewerUserId)) {
+        throw new Error('not a couple member')
+      }
+      store.weEntries.splice(index, 1)
+    })
+  },
+}
+
 export const demoTimeline: Repositories['timeline'] = {
   async list(coupleId, viewerUserId) {
     const store = getDemoStore()

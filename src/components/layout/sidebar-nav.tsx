@@ -18,7 +18,7 @@ const items = [
   { href: '/journeys', label: '深める', icon: Sprout, match: ['/journeys', '/weekly-checkin'] },
   { href: '/repair', label: '整える', icon: HeartHandshake, match: ['/repair'] },
   { href: '/future', label: '未来', icon: Compass, match: ['/future', '/agreements'] },
-  { href: '/story', label: 'ふたり', icon: Users, match: ['/story', '/manual'] },
+  { href: '/story', label: 'ふたり', icon: Users, match: ['/story', '/manual', '/we'] },
 ] as const
 
 /** Desktop sidebar mirroring the bottom nav (spec §6). */

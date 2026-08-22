@@ -21,6 +21,8 @@ import {
   startRepairSession,
 } from '@/server/services/repair-service'
 import { exportUserData } from '@/server/services/settings-service'
+import { countByKind, listWeEntries, removeWeEntry, saveWeEntry } from '@/server/services/we-service'
+import { createAgreement } from '@/server/services/agreement-service'
 import { MAX_INVITATION_ATTEMPTS } from '@/lib/security/invitation-token'
 import type { Gender } from '@/types/domain'
 
@@ -369,6 +371,92 @@ describe('who may pair (docs/BRAND.md §3.1)', () => {
     expect(JSON.stringify(couple)).not.toContain('female')
     const profileA = await getRepositories().profiles.getById(A)
     expect(profileA?.gender).toBe('female')
+  })
+})
+
+describe('NEW WE — what the couple builds (docs/BRAND.md §0.2)', () => {
+  it('saves the third answer, and a second tap by the partner is agreement, not a duplicate', async () => {
+    const coupleId = await pairAB()
+    const saved = await saveWeEntry({
+      coupleId,
+      userId: A,
+      kind: 'answer',
+      title: '休日をどう過ごしたい？',
+      body: '午前はひとり、午後は二人。まず1週間だけ試す。',
+      sourceType: 'daily',
+      sourceId: 'as_1',
+    })
+    const again = await saveWeEntry({
+      coupleId,
+      userId: B,
+      kind: 'answer',
+      title: '休日をどう過ごしたい？',
+      body: '（Bが同じ下書きを保存しようとした）',
+      sourceType: 'daily',
+      sourceId: 'as_1',
+    })
+    expect(again?.id).toBe(saved?.id)
+
+    const entries = await listWeEntries(coupleId, B)
+    expect(entries).toHaveLength(1)
+    expect(entries[0].body).toBe('午前はひとり、午後は二人。まず1週間だけ試す。')
+    expect(countByKind(entries)).toEqual({ discovery: 0, answer: 1, promise: 0, future: 0 })
+  })
+
+  it('never scores the couple — NEW WE only ever counts what they made', async () => {
+    const coupleId = await pairAB()
+    for (const [kind, title] of [
+      ['discovery', '相手は静かな時間を大切にしている'],
+      ['future', '3年後は少し広い部屋で'],
+    ] as const) {
+      await saveWeEntry({
+        coupleId,
+        userId: A,
+        kind,
+        title,
+        body: '',
+        sourceType: 'daily',
+        sourceId: `src-${kind}`,
+      })
+    }
+    const counts = countByKind(await listWeEntries(coupleId, A))
+    expect(counts.discovery).toBe(1)
+    expect(counts.future).toBe(1)
+    expect(JSON.stringify(await listWeEntries(coupleId, A))).not.toMatch(/score|相性/)
+  })
+
+  it('keeps a promise the couple made as part of their NEW WE', async () => {
+    const coupleId = await pairAB()
+    await createAgreement(coupleId, A, {
+      category: 'money',
+      title: '毎月1日に家計の話をする',
+      background: '',
+      decision: '月初の日曜、朝ごはんのあとに30分',
+      startsOn: null,
+      reviewOn: null,
+    })
+    const promises = (await listWeEntries(coupleId, B)).filter((e) => e.kind === 'promise')
+    expect(promises).toHaveLength(1)
+    expect(promises[0].title).toBe('毎月1日に家計の話をする')
+    expect(promises[0].sourceType).toBe('agreement')
+  })
+
+  it('shows nothing to a third party, and lets either partner remove an entry', async () => {
+    const coupleId = await pairAB()
+    const entry = await saveWeEntry({
+      coupleId,
+      userId: A,
+      kind: 'answer',
+      title: '二人の答え',
+      body: '',
+      sourceType: 'daily',
+      sourceId: 'as_2',
+    })
+    expect(await listWeEntries(coupleId, C)).toEqual([])
+    await expect(removeWeEntry(entry!.id, C)).rejects.toThrow()
+
+    await removeWeEntry(entry!.id, B)
+    expect(await listWeEntries(coupleId, A)).toEqual([])
   })
 })
 

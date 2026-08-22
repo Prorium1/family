@@ -22,6 +22,7 @@ import type {
   RepairSession,
   TimelineEvent,
   UserDataRequest,
+  WeEntry,
   WeeklyCheckin,
   WeeklyCheckinAnswer,
 } from '@/types/entities'
@@ -75,6 +76,32 @@ export function mapProfile(row: ProfileRow, email = ''): Profile {
     isAdmin: row.is_admin,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+  }
+}
+
+export interface WeEntryRow {
+  id: string
+  couple_id: string
+  kind: string
+  title: string
+  body: string
+  source_type: string
+  source_id: string | null
+  created_by_user_id: string
+  created_at: string
+}
+
+export function mapWeEntry(row: WeEntryRow): WeEntry {
+  return {
+    id: row.id,
+    coupleId: row.couple_id,
+    kind: row.kind as WeEntry['kind'],
+    title: row.title,
+    body: row.body,
+    sourceType: row.source_type as WeEntry['sourceType'],
+    sourceId: row.source_id,
+    createdByUserId: row.created_by_user_id,
+    createdAt: row.created_at,
   }
 }
 

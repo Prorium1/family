@@ -30,6 +30,19 @@ export const dailyInsightSchema = z.object({
     description: z.string().min(1),
     estimatedMinutes: z.number().int().min(1).max(60),
   }),
+  /**
+   * The third answer (docs/BRAND.md §0.2): neither YOU's answer nor ME's, but
+   * a draft the two can edit into their own. Null when there is nothing to
+   * build yet — a draft is never forced, and it is never a verdict: the couple
+   * decides what becomes their NEW WE.
+   */
+  newWe: z
+    .object({
+      draft: z.string().min(1).max(400),
+      keeps: z.array(z.string().min(1)).max(4),
+      openQuestion: z.string().nullable(),
+    })
+    .nullable(),
   confidence: confidenceSchema,
   safetyLevel: safetyLevelSchema,
 })

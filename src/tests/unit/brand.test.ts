@@ -382,7 +382,36 @@ describe('the words never assume who the partner is (§6)', () => {
   })
 })
 
-// ── 11. The rulebook itself must stay in the repo ───────────────────
+// ── 11. YOU + ME → WE is the product, not a slogan ─────────────────
+describe('the brand core is written down and wired in (§0)', () => {
+  const doc = readFileSync('docs/BRAND.md', 'utf8')
+
+  it('states the core and the promise in the rulebook', () => {
+    expect(doc).toContain('YOU + ME → WE')
+    expect(doc).toContain('違うから、知りたくなる')
+    expect(doc).toContain('第三の答え')
+  })
+
+  it('keeps the four NEW WE kinds identical in the doc and in the domain', () => {
+    const domain = readFileSync('src/types/domain.ts', 'utf8')
+    const declared = domain.match(/WE_ENTRY_KINDS = \[([^\]]+)\]/)?.[1] ?? ''
+    for (const kind of ['discovery', 'answer', 'promise', 'future']) {
+      expect(declared, `WE_ENTRY_KINDS is missing ${kind}`).toContain(`'${kind}'`)
+      expect(doc, `docs/BRAND.md is missing ${kind}`).toContain(`\`${kind}\``)
+    }
+  })
+
+  it('keeps the third answer in the AI contract, so it cannot quietly vanish', () => {
+    const schema = readFileSync('src/lib/validation/ai-insight.ts', 'utf8')
+    expect(schema).toMatch(/newWe:\s*z/)
+    const prompt = readFileSync('src/lib/ai/system-prompt.ts', 'utf8')
+    expect(prompt).toContain('第三の答え')
+    // …and it must stay a draft the couple decides on, never a ruling
+    expect(prompt).toContain('決めるのは常に二人です')
+  })
+})
+
+// ── 12. The rulebook itself must stay in the repo ───────────────────
 describe('the rulebook is present and linked (§8)', () => {
   it('ships docs/BRAND.md', () => {
     const doc = readFileSync('docs/BRAND.md', 'utf8')
