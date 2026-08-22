@@ -6,6 +6,7 @@ import { demoCheckins, demoJourneys } from './programs'
 import { demoRepair } from './repair'
 import {
   demoAgreements,
+  demoWeEntries,
   demoAiLogs,
   demoAnalytics,
   demoConsents,
@@ -28,6 +29,7 @@ export const demoRepositories: Repositories = {
   checkins: demoCheckins,
   repair: demoRepair,
   agreements: demoAgreements,
+  weEntries: demoWeEntries,
   timeline: demoTimeline,
   manual: demoManual,
   notificationPreferences: demoNotificationPreferences,

@@ -82,6 +82,7 @@ export function buildSeedStore(): DemoStore {
     repairInsights: [],
     repairAgreements: [],
     agreements: [],
+    weEntries: [],
     agreementRevisions: [],
     timeline: [],
     manualItems: [],

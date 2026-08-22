@@ -25,6 +25,7 @@ import type {
   SafetyEvent,
   TimelineEvent,
   UserDataRequest,
+  WeEntry,
   WeeklyCheckin,
   WeeklyCheckinAnswer,
 } from '@/types/entities'
@@ -44,6 +45,16 @@ export interface Repositories {
     /** Create the profile on first login when it does not exist yet. */
     ensure(id: string, defaults: { displayName: string; email: string }): Promise<Profile>
     update(id: string, patch: Partial<Pick<Profile, 'displayName' | 'locale' | 'timezone' | 'ageConfirmed' | 'gender'>>): Promise<Profile>
+  }
+  /**
+   * NEW WE (docs/BRAND.md §0.2). Couple-scoped like every shared record: a
+   * non-member reads nothing, and entries are only ever written by a member.
+   */
+  weEntries: {
+    list(coupleId: string, viewerUserId: string): Promise<WeEntry[]>
+    findBySource(coupleId: string, sourceType: string, sourceId: string): Promise<WeEntry[]>
+    create(entry: WeEntry): Promise<WeEntry>
+    remove(id: string, viewerUserId: string): Promise<void>
   }
   couples: {
     getForUser(userId: string): Promise<{ couple: Couple; members: CoupleMember[] } | null>

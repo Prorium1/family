@@ -26,6 +26,18 @@ export type RelationshipStage = (typeof RELATIONSHIP_STAGES)[number]
 export const GENDERS = ['male', 'female', 'other'] as const
 export type Gender = (typeof GENDERS)[number]
 
+/**
+ * NEW WE (docs/BRAND.md §0.2) — what the couple builds, in place of a
+ * compatibility score. Four kinds and no more: what they newly learned about
+ * each other, the third answer they made together, what they promised, and
+ * the future they found.
+ */
+export const WE_ENTRY_KINDS = ['discovery', 'answer', 'promise', 'future'] as const
+export type WeEntryKind = (typeof WE_ENTRY_KINDS)[number]
+
+export const WE_ENTRY_SOURCES = ['daily', 'repair', 'agreement', 'journey', 'manual'] as const
+export type WeEntrySource = (typeof WE_ENTRY_SOURCES)[number]
+
 export const COUPLE_STATUS = ['pending', 'active', 'unpaired'] as const
 export type CoupleStatus = (typeof COUPLE_STATUS)[number]
 

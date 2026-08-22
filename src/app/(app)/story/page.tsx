@@ -1,11 +1,13 @@
 import Link from 'next/link'
 import { requireCoupleSession } from '@/lib/auth/session'
 import { getStory } from '@/server/services/story-service'
+import { countByKind, listWeEntries } from '@/server/services/we-service'
+import { WE_KIND_LABELS, WE_KIND_ORDER } from '@/lib/ui/we'
 import { PageTitle } from '@/components/shared/page-title'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/shared/empty-state'
-import { BookHeart } from 'lucide-react'
+import { BookHeart, Sparkles } from 'lucide-react'
 
 export const metadata = { title: 'ふたり' }
 
@@ -26,6 +28,8 @@ export default async function StoryPage() {
   const session = await requireCoupleSession()
   const story = await getStory(session.coupleId, session.userId)
   if (!story) return null
+  const weEntries = await listWeEntries(session.coupleId, session.userId)
+  const weCounts = countByKind(weEntries)
 
   const stats = [
     { label: '一緒に話せた日', value: story.stats.conversationsCompleted },
@@ -41,10 +45,40 @@ export default async function StoryPage() {
         subtitle={`${session.displayName} と ${story.couple.partner?.displayName ?? 'パートナー'} ・ ${stageLabels[story.couple.relationshipStage] ?? ''}`}
       />
 
+      {/* NEW WE first: what the two of them built is the point of this page */}
+      <Card className="border-primary/30">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="size-4 text-primary" aria-hidden="true" />
+            私たち
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-text-muted">
+            {weEntries.length === 0
+              ? '違いから二人でつくったものが、ここに積み重なっていきます。'
+              : `二人でつくったもの: ${weEntries.length}件`}
+          </p>
+          {weEntries.length > 0 ? (
+            <dl className="mt-3 grid grid-cols-4 gap-2 text-center">
+              {WE_KIND_ORDER.map((kind) => (
+                <div key={kind} className="rounded-card-sm bg-together-soft px-1 py-2">
+                  <dd className="text-base font-bold text-primary">{weCounts[kind]}</dd>
+                  <dt className="text-[11px] text-primary">{WE_KIND_LABELS[kind].label}</dt>
+                </div>
+              ))}
+            </dl>
+          ) : null}
+          <Button asChild variant="soft" size="sm" className="mt-3">
+            <Link href="/we">ひらく</Link>
+          </Button>
+        </CardContent>
+      </Card>
+
       {story.couple.daysTogether !== null ? (
-        <Card className="bg-secondary text-secondary-foreground">
+        <Card className="bg-wash">
           <CardContent className="py-6 text-center">
-            <p className="text-xs opacity-80">アプリで一緒に過ごした日数</p>
+            <p className="text-xs text-text-muted">アプリで一緒に過ごした日数</p>
             <p className="mt-1 text-4xl font-bold">
               {story.couple.daysTogether + 1}
               <span className="ml-1 text-base font-normal">日目</span>

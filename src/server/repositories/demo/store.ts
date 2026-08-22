@@ -24,6 +24,7 @@ import type {
   SafetyEvent,
   TimelineEvent,
   UserDataRequest,
+  WeEntry,
   WeeklyCheckin,
   WeeklyCheckinAnswer,
 } from '@/types/entities'
@@ -49,6 +50,7 @@ export interface DemoStore {
   repairInsights: RepairInsightRecord[]
   repairAgreements: RepairAgreement[]
   agreements: Agreement[]
+  weEntries: WeEntry[]
   agreementRevisions: AgreementRevision[]
   timeline: TimelineEvent[]
   manualItems: RelationshipManualItemRecord[]

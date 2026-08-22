@@ -68,6 +68,25 @@ const MICRO_ACTIONS: Array<DailyInsight['microAction']> = [
   },
 ]
 
+/**
+ * The third answer (docs/BRAND.md §0.2): a draft that belongs to neither
+ * person. It only appears when both actually answered — there is nothing to
+ * build from one voice — and it is written as a proposal the two rewrite.
+ */
+function buildThirdAnswer(context: MockDailyContext): DailyInsight['newWe'] {
+  const [a, b] = context.answers
+  if (!a || !b || context.safetyLevel === 'urgent') return null
+  const keeps = [a, b]
+    .map((ans) => `${ans.name}さんが手放したくないこと: ${firstClause(ans.text, 28)}`)
+    .filter((line) => !line.endsWith(': '))
+  if (keeps.length < 2) return null
+  return {
+    draft: `${a.name}さんの「${firstClause(a.text, 16)}」と、${b.name}さんの「${firstClause(b.text, 16)}」。どちらかに合わせるのではなく、両方が残る形にしてみませんか。まずは次の1週間だけ試して、合わなければ二人で書き直せます。`,
+    keeps,
+    openQuestion: `この形で、${a.name}さんと${b.name}さんそれぞれに無理が出るのはどんなときでしょう？`,
+  }
+}
+
 function buildDailyInsight(context: MockDailyContext): DailyInsight {
   const seed = JSON.stringify(context)
   const [a, b] = context.answers
@@ -89,6 +108,7 @@ function buildDailyInsight(context: MockDailyContext): DailyInsight {
     }${b ? `${b.name}さんは「${firstClause(b.text)}」と答えています。` : ''}どちらの答えにも、相手を大切に思う気持ちが表れている可能性があります。`,
     conversationQuestion:
       CONVERSATION_QUESTIONS[seededIndex(seed, CONVERSATION_QUESTIONS.length)],
+    newWe: buildThirdAnswer(context),
     microAction: MICRO_ACTIONS[seededIndex(`${seed}:action`, MICRO_ACTIONS.length)],
     confidence: 'medium',
     safetyLevel: context.safetyLevel,

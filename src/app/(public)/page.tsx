@@ -8,7 +8,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
-import { MessagesSquare, ShieldCheck, Sparkles, Lock } from 'lucide-react'
+import { MessagesSquare, ShieldCheck, Sparkles, Lock, Handshake } from 'lucide-react'
 import { BrandMark } from '@/components/shared/brand-mark'
 
 /** Landing page (spec §35). Warm, honest, and free of fear marketing. */
@@ -19,15 +19,18 @@ export default function LandingPage() {
       <section className="bg-wash">
         <div className="mx-auto flex max-w-3xl flex-col items-center px-4 py-20 text-center">
           <BrandMark className="mb-6 h-16 w-24" state="together" />
-          <h1 className="text-3xl leading-snug font-bold sm:text-4xl">
-            二人の会話を、
-            <br className="sm:hidden" />
-            未来につなげる。
+          <p className="text-blend text-sm font-bold tracking-[0.2em]">YOU + ME → WE</p>
+          <h1 className="mt-3 text-2xl leading-relaxed font-bold sm:text-3xl">
+            違うから、知りたくなる。
+            <br />
+            知るから、わかり合える。
+            <br />
+            そして、新しい「私たち」が生まれる。
           </h1>
           <p className="mt-4 text-base leading-relaxed text-text-muted">
-            毎日5分。
-            <br />
-            愛のあるAIと一緒に、わかり合える関係を育てよう。
+            毎日5分。愛のあるAIと一緒に、
+            <br className="sm:hidden" />
+            二人だけの答えをつくっていく Relationship OS。
           </p>
           <Button asChild size="lg" className="mt-8">
             <Link href="/signup">ふたりではじめる</Link>
@@ -79,6 +82,11 @@ export default function LandingPage() {
                 body: '危険を感じる状況では、仲直りより先にあなたの安全を優先します。パートナーへの自動通知は行いません。',
               },
               {
+                icon: Handshake,
+                title: '二人だけの第三の答え',
+                body: '「価値観が違います」で終わりません。どちらにも合わせない、二人の言葉でつくる答えを一緒に下書きします。決めるのはいつも二人です。',
+              },
+              {
                 icon: Lock,
                 title: 'プライバシー第一',
                 body: '書いたことをどこまで共有するかは、いつもあなたが選べます。自分だけ・AIだけ・要約のみ・原文共有の5段階です。',
@@ -98,6 +106,33 @@ export default function LandingPage() {
             ))}
           </div>
         </div>
+      </section>
+
+      {/* YOU + ME → WE の5ステップ */}
+      <section className="mx-auto max-w-3xl px-4 py-14">
+        <h2 className="text-center text-xl font-bold">二人の違いが、答えに変わるまで</h2>
+        <ol className="mt-8 space-y-3">
+          {[
+            { step: 'KNOW ME', title: '自分を知る', body: '毎日ひとつの質問に、まず自分の言葉で答えます。' },
+            { step: 'KNOW YOU', title: '相手を知る', body: '二人がそろって初めて、同時に公開されます。合わせる必要はありません。' },
+            { step: 'EXCHANGE', title: '価値観を交換する', body: '同じ問いへの、違う答え。そこがいちばん知り合える場所です。' },
+            { step: 'UNDERSTAND', title: 'なぜ違うのかを理解する', body: 'AIがどちらも裁かずに、何を大切にしているのかを整理します。' },
+            { step: 'BUILD WE', title: '二人だけの答えをつくる', body: 'どちらかに合わせるのではなく、両方が残る第三の答えを「私たち」に残します。' },
+          ].map(({ step, title, body }, index) => (
+            <li key={step} className="flex gap-4 rounded-card bg-surface px-5 py-4 shadow-card">
+              <span className="text-blend shrink-0 text-sm font-bold">{index + 1}</span>
+              <div>
+                <p className="text-xs font-bold tracking-widest text-text-muted">{step}</p>
+                <p className="mt-0.5 font-semibold">{title}</p>
+                <p className="mt-1 text-sm leading-relaxed text-text-muted">{body}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+        <p className="mt-6 text-center text-sm text-text-muted">
+          積み上がるのは相性のスコアではなく、
+          <span className="text-primary font-semibold">「私たちとは何か」</span>です。
+        </p>
       </section>
 
       {/* 今日の質問の体験 */}
@@ -219,7 +254,7 @@ export default function LandingPage() {
       <section className="bg-wash">
         <div className="mx-auto max-w-3xl px-4 py-16 text-center">
           <h2 className="text-xl font-bold">
-            今日の5分から、はじめよう。
+今日の5分から、二人の答えをつくりはじめよう。
           </h2>
           <Button asChild size="lg" variant="primary" className="mt-6">
             <Link href="/signup">ふたりではじめる</Link>

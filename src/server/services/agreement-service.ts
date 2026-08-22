@@ -3,6 +3,7 @@ import { getRepositories } from '@/server/repositories'
 import type { FutureCategory } from '@/types/domain'
 import type { AgreementDTO } from '@/types/dto'
 import { track } from '@/lib/analytics/track'
+import { saveWeEntry } from './we-service'
 
 /** 二人の約束 (spec §13): revisable decisions, never fixed contracts. */
 
@@ -62,6 +63,16 @@ export async function createAgreement(
     title: `約束「${input.title}」`,
     date: now.slice(0, 10),
     createdAt: now,
+  })
+  // A promise is one of the four things NEW WE is made of (BRAND.md §0.2).
+  await saveWeEntry({
+    coupleId,
+    userId,
+    kind: 'promise',
+    title: input.title,
+    body: input.decision,
+    sourceType: 'agreement',
+    sourceId: agreement.id,
   })
   await track('agreement_created', { category: input.category })
   return agreement.id

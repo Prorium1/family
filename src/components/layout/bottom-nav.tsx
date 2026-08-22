@@ -10,7 +10,7 @@ const items = [
   { href: '/journeys', label: '深める', icon: Sprout, match: ['/journeys', '/weekly-checkin'] },
   { href: '/repair', label: '整える', icon: HeartHandshake, match: ['/repair'] },
   { href: '/future', label: '未来', icon: Compass, match: ['/future', '/agreements'] },
-  { href: '/story', label: 'ふたり', icon: Users, match: ['/story', '/manual'] },
+  { href: '/story', label: 'ふたり', icon: Users, match: ['/story', '/manual', '/we'] },
 ] as const
 
 /** Mobile bottom navigation (spec §6): 5 fixed tabs, ≥44px targets, safe-area aware. */

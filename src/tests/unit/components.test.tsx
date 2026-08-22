@@ -20,19 +20,42 @@ const insight: DailyInsight = {
   reflection: '二人とも自分の言葉で向き合いました。',
   conversationQuestion: '相手の答えで意外だったところは？',
   microAction: { title: '感謝をひとこと', description: '今日の答えに触れて伝える', estimatedMinutes: 3 },
+  newWe: {
+    draft: '週末の午前は一人の時間、午後は二人の時間にしてみませんか。',
+    keeps: ['ひとりで整える時間', '二人で過ごす時間'],
+    openQuestion: '予定が入った週はどうする？',
+  },
   confidence: 'medium',
   safetyLevel: 'none',
 }
 
 describe('InsightCard', () => {
   it('renders every structured section, without any score', () => {
-    render(<InsightCard insight={insight} />)
+    render(<InsightCard insight={insight} assignmentId="as_1" questionText="休日をどう過ごしたい？" />)
     expect(screen.getByText('愛の通訳から、二人へのメッセージ')).toBeInTheDocument()
     expect(screen.getByText('今日の二人へ')).toBeInTheDocument()
     expect(screen.getByText('安心できる時間')).toBeInTheDocument()
     expect(screen.getByText('相手の答えで意外だったところは？')).toBeInTheDocument()
     expect(screen.getByText(/今日できる小さなこと（約3分）/)).toBeInTheDocument()
     expect(document.body.textContent).not.toMatch(/相性|\d+点/)
+  })
+
+  it('offers the third answer as an editable draft, never as a verdict', () => {
+    render(<InsightCard insight={insight} assignmentId="as_1" questionText="休日をどう過ごしたい？" />)
+    expect(screen.getByText('二人だけの答えの下書き')).toBeInTheDocument()
+    expect(screen.getByLabelText('二人の答え')).toHaveValue(insight.newWe!.draft)
+    expect(screen.getByRole('button', { name: 'これを私たちの答えにする' })).toBeInTheDocument()
+  })
+
+  it('says nothing about a third answer when there is none to build', () => {
+    render(
+      <InsightCard
+        insight={{ ...insight, newWe: null }}
+        assignmentId="as_1"
+        questionText="休日をどう過ごしたい？"
+      />,
+    )
+    expect(screen.queryByText('二人だけの答えの下書き')).not.toBeInTheDocument()
   })
 })
 

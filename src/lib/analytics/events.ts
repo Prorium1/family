@@ -17,6 +17,7 @@ export const ANALYTICS_EVENTS = [
   'repair_session_started',
   'repair_session_completed',
   'agreement_created',
+  'new_we_saved',
   'share_card_created',
   'referral_completed',
 ] as const

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { requireCoupleSession } from '@/lib/auth/session'
 import { getTodayView } from '@/server/services/daily-service'
+import { listWeEntries } from '@/server/services/we-service'
 import { track } from '@/lib/analytics/track'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -31,6 +32,14 @@ export default async function TodayPage({ params }: PageProps<'/today/[assignmen
   if (view.insightStatus === 'ready') {
     await track('ai_insight_viewed', { assignmentId })
   }
+
+  // What this conversation has already contributed to NEW WE, so a saved
+  // draft reads as "ours" instead of offering to save it twice.
+  const savedSourceIds = revealed
+    ? (await listWeEntries(session.coupleId, session.userId))
+        .filter((entry) => entry.sourceType === 'daily' && entry.sourceId?.startsWith(assignmentId))
+        .map((entry) => entry.sourceId as string)
+    : []
 
   return (
     <div className="space-y-6">
@@ -75,7 +84,12 @@ export default async function TodayPage({ params }: PageProps<'/today/[assignmen
           <RevealPanel mine={view.myRevealedAnswer} partner={view.partnerAnswer!} />
 
           {view.insightStatus === 'ready' && view.insight ? (
-            <InsightCard insight={view.insight} />
+            <InsightCard
+              insight={view.insight}
+              assignmentId={view.assignmentId}
+              questionText={view.question.text}
+              savedSourceIds={savedSourceIds}
+            />
           ) : view.insightStatus === 'generating' ? (
             <InsightSkeleton />
           ) : view.insightStatus === 'failed' ? (
