@@ -37,7 +37,7 @@
   --primary: #9b45ba; /* the blend as readable text / icons */
   --primary-strong: #83319f;
   --primary-foreground: #ffffff; /* on the solid purple, not on the gradient */
-  --on-blend: #1f1a2b; /* ≥7:1 at every stop of the logo gradient */
+  --on-blend: #331a52; /* deep violet, on the mark's hue line — not black */
 
   /* ── Person identity: readable weights of each side of the logo ── */
   --person-a: #0a67d8;
@@ -111,7 +111,7 @@
   --primary-strong: #dcaae9;
   --primary-foreground: #2a0d33;
   /* the mark does not change with the theme, so neither does its ink */
-  --on-blend: #1f1a2b;
+  --on-blend: #331a52;
 
   --person-a: #8dc3fe;
   --person-b: #ff9db6;
@@ -182,6 +182,9 @@ body {
   background: var(--background);
   color: var(--text);
   font-family: var(--font-sans);
+  /* Proportional kana: Japanese set with Latin-like rhythm, so a button
+     label reads as one word instead of a row of separate glyphs (§5). */
+  font-feature-settings: 'palt' 1;
   /* Long Japanese text must wrap safely — spec §36 */
   overflow-wrap: anywhere;
   line-break: strict;
@@ -256,6 +259,41 @@ body {
 
 .animate-gentle-rise {
   animation: gentle-rise 0.45s ease-out both;
+}
+
+/* A soft light crossing the blend. The gradient itself never moves — the
+   button must always show the whole mark, 水色 → 紫 → ピンク — so what drifts
+   is a highlight above it (docs/BRAND.md §4). Primary actions only, and slow
+   enough to read as breathing rather than motion. */
+@keyframes blend-drift {
+  0%,
+  100% {
+    transform: translateX(-55%);
+  }
+  50% {
+    transform: translateX(55%);
+  }
+}
+
+.animate-blend-drift {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.animate-blend-drift::after {
+  content: '';
+  position: absolute;
+  inset: -20% -10%;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgb(255 255 255 / 0.32) 50%,
+    transparent 70%
+  );
+  animation: blend-drift 12s ease-in-out infinite;
 }
 
 /* The overlap slowly finding itself — for the waiting state only. */

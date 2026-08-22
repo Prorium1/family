@@ -30,7 +30,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    <html lang={appConfig.defaultLocale} className="h-full antialiased">
+    <html lang={appConfig.defaultLocale} className="h-full">
       <body className="flex min-h-full flex-col bg-background text-text">
         {children}
         <ServiceWorkerRegister />
