@@ -1,0 +1,145 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* ────────────────────────────────────────────────────────────
+   Design tokens — spec §20
+   Light: warm ivory ground, calm coral primary, deep blue-gray
+   secondary, soft sage accent. All colors meet WCAG AA on
+   their intended surfaces.
+   ──────────────────────────────────────────────────────────── */
+:root {
+  --background: #faf6ef; /* warm ivory */
+  --surface: #ffffff;
+  --surface-muted: #f4efe6;
+  --primary: #a85042; /* calm coral, AA on white */
+  --primary-strong: #8f4237;
+  --primary-foreground: #ffffff;
+  --secondary: #44546a; /* deep blue-gray */
+  --secondary-foreground: #ffffff;
+  --accent: #8ba888; /* soft sage */
+  --accent-soft: #e7efe6;
+  --accent-foreground: #2c3e2b;
+  --text: #1d2433; /* near-black navy */
+  --text-muted: #5d6168; /* warm gray, AA on muted surfaces */
+  --border: #e5ddcf;
+  --input: #d9d2c4;
+  --ring: #a85042;
+  --success: #3d6a4a;
+  --success-soft: #e4efe7;
+  --warning: #8a5d12;
+  --warning-soft: #f7edda;
+  --danger: #b3362c;
+  --danger-soft: #f8e5e2;
+  --radius: 1.25rem; /* 20px — spec asks 16–24px */
+  --radius-sm: 1rem;
+  --radius-lg: 1.5rem;
+  --shadow-card: 0 1px 2px rgb(29 36 51 / 0.04), 0 4px 16px rgb(29 36 51 / 0.06);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+[data-theme='dark'] {
+  --background: #16181f;
+  --surface: #1f222b;
+  --surface-muted: #262a34;
+  --primary: #d98a7a;
+  --primary-strong: #e29c8e;
+  --primary-foreground: #2b1512;
+  --secondary: #9fb0c7;
+  --secondary-foreground: #141a23;
+  --accent: #93b28f;
+  --accent-soft: #243023;
+  --accent-foreground: #cfe0cc;
+  --text: #edeae3;
+  --text-muted: #a6a9b0;
+  --border: #333845;
+  --input: #3d4250;
+  --ring: #d98a7a;
+  --success: #7dab8c;
+  --success-soft: #223328;
+  --warning: #d1a355;
+  --warning-soft: #362d1b;
+  --danger: #de7a70;
+  --danger-soft: #3a2320;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 16px rgb(0 0 0 / 0.25);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-primary: var(--primary);
+  --color-primary-strong: var(--primary-strong);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --radius-card: var(--radius);
+  --radius-card-sm: var(--radius-sm);
+  --radius-card-lg: var(--radius-lg);
+  --font-sans:
+    'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic UI', 'Meiryo',
+    system-ui, -apple-system, sans-serif;
+  --shadow-card: var(--shadow-card);
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  background: var(--background);
+  color: var(--text);
+  font-family: var(--font-sans);
+  /* Long Japanese text must wrap safely — spec §36 */
+  overflow-wrap: anywhere;
+  line-break: strict;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* gentle celebration for reveal moments — no confetti */
+@keyframes gentle-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-gentle-rise {
+  animation: gentle-rise 0.45s ease-out both;
+}
