@@ -63,7 +63,7 @@ export default async function WelcomePage({ searchParams }: PageProps<'/welcome'
   if (params.invalid === '1' || !invitation) {
     return (
       <div className="mx-auto max-w-md px-4 py-14 text-center">
-        <BrandMark className="mx-auto h-12 w-18" />
+        <BrandMark className="mx-auto h-12 w-auto" />
         <h1 className="mt-4 text-xl font-bold">この招待リンクは使えなくなっています</h1>
         <p className="mt-2 text-sm leading-relaxed text-text-muted">
           有効期限が切れたか、すでに使用された可能性があります。パートナーに新しい招待リンクか6桁のコードをもらってください。
@@ -85,7 +85,7 @@ export default async function WelcomePage({ searchParams }: PageProps<'/welcome'
     return (
       <div className="mx-auto max-w-md px-4 py-14">
         <div className="text-center">
-          <BrandMark className="mx-auto h-12 w-18" state="waiting" />
+          <BrandMark className="mx-auto h-12 w-auto" state="waiting" />
           <h1 className="mt-4 text-xl font-bold">
             {invitation.inviterName}さんから招待が届いています
           </h1>
@@ -106,7 +106,7 @@ export default async function WelcomePage({ searchParams }: PageProps<'/welcome'
   return (
     <div className="mx-auto max-w-md px-4 py-14">
       <div className="text-center">
-        <BrandMark className="mx-auto h-12 w-18" state="waiting" />
+        <BrandMark className="mx-auto h-12 w-auto" state="waiting" />
         <h1 className="mt-4 text-xl leading-snug font-bold">
           {invitation.inviterName}さんから
           <br />

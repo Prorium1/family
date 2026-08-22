@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="2048" height="2048"
+     viewBox="0 0 2048 2048">
+  <defs>
+    
+<linearGradient id="seamlessGradient"
+  gradientUnits="userSpaceOnUse"
+  x1="315.3011" y1="0"
+  x2="1732.6989" y2="0">
+  <stop offset="0%"   stop-color="#36A7F4"/>
+  <stop offset="30%"  stop-color="#6F8EF2"/>
+  <stop offset="50%"  stop-color="#AC75E6"/>
+  <stop offset="70%"  stop-color="#D765CC"/>
+  <stop offset="100%" stop-color="#F74699"/>
+</linearGradient>
+
+    
+<clipPath id="clipLeft">
+  <circle cx="753.3011" cy="1085.0000" r="438.0000"/>
+</clipPath>
+<clipPath id="clipRight">
+  <circle cx="1294.6989" cy="1085.0000" r="438.0000"/>
+</clipPath>
+
+  </defs>
+  
+<!-- Central intersection = NEW WE -->
+<g clip-path="url(#clipLeft)">
+  <g clip-path="url(#clipRight)">
+    <rect x="315.3011" y="647.0000"
+          width="1417.3978" height="876.0000"
+          fill="url(#seamlessGradient)"/>
+  </g>
+</g>
+
+<!-- Two equal golden-ratio circles -->
+<circle cx="753.3011" cy="1085.0000" r="438.0000"
+        fill="none" stroke="url(#seamlessGradient)"
+        stroke-width="39.4944" stroke-linecap="round"/>
+<circle cx="1294.6989" cy="1085.0000" r="438.0000"
+        fill="none" stroke="url(#seamlessGradient)"
+        stroke-width="39.4944" stroke-linecap="round"/>
+
+<!-- Solid-color heads; centers align exactly to each circle -->
+<circle cx="753.3011" cy="499.4461" r="83.6506"
+        fill="#36A7F4"/>
+<circle cx="1294.6989" cy="499.4461" r="83.6506"
+        fill="#F74699"/>
+
+</svg>
