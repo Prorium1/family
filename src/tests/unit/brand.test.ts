@@ -152,9 +152,11 @@ const PAIRINGS: Array<[fg: string, bg: string, min: number]> = [
   ['primary', 'background', 4.5],
   ['primary-foreground', 'primary', 4.5],
   ['primary-foreground', 'primary-strong', 4.5],
-  // white must stay readable across the whole blend gradient, both ends
-  ['primary-foreground', 'primary-from', 4.5],
-  ['primary-foreground', 'primary-to', 4.5],
+  // Primary buttons are filled with the logo gradient itself, so the ink
+  // must stay readable at every stop of it — see docs/BRAND.md §4.
+  ['on-blend', 'brand-blue', 4.5],
+  ['on-blend', 'brand-purple', 4.5],
+  ['on-blend', 'brand-pink', 4.5],
   ['person-a', 'surface', 4.5],
   ['person-a', 'person-a-soft', 4.5],
   ['person-b', 'surface', 4.5],
@@ -214,8 +216,22 @@ describe('semantic colors stay distinct from person colors (§2)', () => {
 // ── 5. The gradient vocabulary exists and is bounded ────────────────
 describe('gradient utilities (§4)', () => {
   it('defines exactly the three sanctioned gradients', () => {
-    for (const name of ['--gradient-blend', '--gradient-identity', '--gradient-wash']) {
+    for (const name of ['--gradient-blend', '--gradient-ink', '--gradient-wash']) {
       expect(css).toContain(name)
+    }
+  })
+
+  it('fills .bg-blend with the logo colors themselves, in order', () => {
+    const blend = css.match(/--gradient-blend:[^;]+;/)![0]
+    const stops = [...blend.matchAll(/var\(--(brand-[a-z]+)\)/g)].map((m) => m[1])
+    expect(stops).toEqual(['brand-blue', 'brand-purple', 'brand-pink'])
+  })
+
+  it('uses the readable ramp — never the light logo colors — for gradient text', () => {
+    const ink = css.match(/--gradient-ink:[^;]+;/)![0]
+    expect(ink).not.toMatch(/var\(--brand-/)
+    for (const t of ['person-a', 'primary', 'person-b']) {
+      expect(ink).toContain(`var(--${t})`)
     }
   })
 
@@ -228,7 +244,7 @@ describe('gradient utilities (§4)', () => {
   })
 
   it('exposes them as utilities the components can use', () => {
-    for (const utility of ['.bg-blend', '.bg-identity', '.bg-wash', '.text-blend', '.rule-blend']) {
+    for (const utility of ['.bg-blend', '.bg-wash', '.text-blend', '.rule-blend']) {
       expect(css).toContain(utility)
     }
   })
@@ -291,7 +307,27 @@ describe('components consume tokens, never raw color (§7)', () => {
   })
 })
 
-// ── 8. The rulebook itself must stay in the repo ────────────────────
+// ── 8. White must never be placed on the light logo gradient ────────
+describe('the blend carries dark ink, never white (§4)', () => {
+  const files = walk(['src/components', 'src/features', 'src/app']).filter((f) =>
+    f.endsWith('.tsx'),
+  )
+
+  it('pairs every bg-blend with text-on-blend', () => {
+    const offenders: string[] = []
+    for (const file of files) {
+      for (const line of readFileSync(file, 'utf8').split('\n')) {
+        if (!line.includes('bg-blend')) continue
+        if (line.includes('text-white') || line.includes('text-primary-foreground')) {
+          offenders.push(`${file}: ${line.trim()}`)
+        }
+      }
+    }
+    expect(offenders).toEqual([])
+  })
+})
+
+// ── 9. The rulebook itself must stay in the repo ────────────────────
 describe('the rulebook is present and linked (§8)', () => {
   it('ships docs/BRAND.md', () => {
     const doc = readFileSync('docs/BRAND.md', 'utf8')

@@ -31,12 +31,13 @@
   --surface: #ffffff;
   --surface-muted: #f5f1f9;
 
-  /* ── The blend: primary action = what the two do together ── */
-  --primary: #9b45ba;
+  /* ── The blend: primary action = what the two do together.
+        Primary surfaces are filled with the logo gradient itself, so the
+        ink on them is dark — white would sit at 2.4:1 (docs/BRAND.md §4). ── */
+  --primary: #9b45ba; /* the blend as readable text / icons */
   --primary-strong: #83319f;
-  --primary-from: #7a4fc9; /* blue-leaning end of the blend */
-  --primary-to: #bc3f9d; /* pink-leaning end of the blend */
-  --primary-foreground: #ffffff;
+  --primary-foreground: #ffffff; /* on the solid purple, not on the gradient */
+  --on-blend: #1f1a2b; /* ≥7:1 at every stop of the logo gradient */
 
   /* ── Person identity: readable weights of each side of the logo ── */
   --person-a: #0a67d8;
@@ -73,13 +74,21 @@
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 
-  /* ── Gradients: the mark, in motion ── */
-  --gradient-blend: linear-gradient(100deg, var(--primary-from), var(--primary) 52%, var(--primary-to));
-  --gradient-identity: linear-gradient(
+  /* ── Gradients: the mark, in motion ──
+        `blend` is the logo, untouched: 水色 → 紫 → ピンク. It fills primary
+        actions, the mark, progress and rules — always under --on-blend ink.
+        `ink` is the same three hues darkened until they can be text. ── */
+  --gradient-blend: linear-gradient(
     100deg,
     var(--brand-blue),
     var(--brand-purple) 50%,
     var(--brand-pink)
+  );
+  --gradient-ink: linear-gradient(
+    100deg,
+    var(--person-a),
+    var(--primary) 50%,
+    var(--person-b)
   );
   --gradient-wash: linear-gradient(
     140deg,
@@ -100,9 +109,9 @@
 
   --primary: #cb90dc;
   --primary-strong: #dcaae9;
-  --primary-from: #a99bf0;
-  --primary-to: #f09ad0;
   --primary-foreground: #2a0d33;
+  /* the mark does not change with the theme, so neither does its ink */
+  --on-blend: #1f1a2b;
 
   --person-a: #8dc3fe;
   --person-b: #ff9db6;
@@ -137,9 +146,8 @@
   --color-surface-muted: var(--surface-muted);
   --color-primary: var(--primary);
   --color-primary-strong: var(--primary-strong);
-  --color-primary-from: var(--primary-from);
-  --color-primary-to: var(--primary-to);
   --color-primary-foreground: var(--primary-foreground);
+  --color-on-blend: var(--on-blend);
   --color-person-a: var(--person-a);
   --color-person-b: var(--person-b);
   --color-person-a-soft: var(--person-a-soft);
@@ -187,14 +195,10 @@ body {
 
 /* ── Brand utilities ─────────────────────────────────────────────── */
 
-/* The blend, as a fill. Primary actions and the couple's shared moments. */
+/* The logo gradient, as a fill: 水色 → 紫 → ピンク. Primary actions, the
+   mark, progress and rules. Always pair with `text-on-blend`. */
 .bg-blend {
   background-image: var(--gradient-blend);
-}
-
-/* The untouched logo gradient. Marks, dividers, decorative rules only. */
-.bg-identity {
-  background-image: var(--gradient-identity);
 }
 
 /* A whisper of the mark behind a whole panel. */
@@ -210,7 +214,7 @@ body {
 
 @supports (background-clip: text) or (-webkit-background-clip: text) {
   .text-blend {
-    background-image: var(--gradient-blend);
+    background-image: var(--gradient-ink);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -222,7 +226,7 @@ body {
 .rule-blend {
   height: 2px;
   border: 0;
-  background-image: var(--gradient-identity);
+  background-image: var(--gradient-blend);
   border-radius: 2px;
 }
 

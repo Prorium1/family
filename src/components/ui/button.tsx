@@ -18,9 +18,9 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        // The two minds mixing: a blue-leaning purple sliding into a
-        // pink-leaning one. Both ends clear 4.5:1 against white.
-        primary: 'bg-blend text-primary-foreground shadow-card hover:opacity-92',
+        // The logo itself, as a fill: 水色 → 紫 → ピンク. Dark ink, because
+        // the mark's own colors are too light to carry white (§4).
+        primary: 'bg-blend text-on-blend shadow-card hover:opacity-90',
         secondary: 'bg-primary text-primary-foreground hover:bg-primary-strong',
         outline: 'border border-border bg-surface text-text hover:bg-surface-muted',
         ghost: 'text-text hover:bg-surface-muted',
