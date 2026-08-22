@@ -11,6 +11,7 @@ import {
   Settings,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { BrandLockup } from '@/components/shared/brand-mark'
 
 const items = [
   { href: '/home', label: '今日', icon: Sunrise, match: ['/home', '/today'] },
@@ -25,8 +26,8 @@ export function SidebarNav({ appName }: { appName: string }) {
   const pathname = usePathname()
   return (
     <aside className="sticky top-0 hidden h-dvh w-56 shrink-0 flex-col border-r border-border bg-surface px-4 py-6 md:flex">
-      <Link href="/home" className="mb-8 px-2 text-lg font-bold text-primary">
-        {appName}
+      <Link href="/home" className="mb-8 px-2 text-lg">
+        <BrandLockup name={appName} />
       </Link>
       <nav aria-label="メインナビゲーション" className="flex flex-1 flex-col gap-1">
         {items.map(({ href, label, icon: Icon, match }) => {
@@ -39,7 +40,7 @@ export function SidebarNav({ appName }: { appName: string }) {
               className={cn(
                 'flex min-h-11 items-center gap-3 rounded-card-sm px-3 text-sm font-medium',
                 active
-                  ? 'bg-accent-soft text-accent-foreground'
+                  ? 'bg-together-soft text-primary'
                   : 'text-text-muted hover:bg-surface-muted hover:text-text',
               )}
             >

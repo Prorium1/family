@@ -23,7 +23,7 @@ export default async function JourneyDetailPage({ params }: PageProps<'/journeys
     <div>
       <PageTitle title={journey.title} subtitle={journey.description} />
       {journey.status === 'completed' ? (
-        <p className="animate-gentle-rise mb-5 rounded-card bg-accent-soft px-5 py-4 text-sm font-medium text-accent-foreground">
+        <p className="animate-gentle-rise mb-5 rounded-card bg-together-soft px-5 py-4 text-sm font-medium text-primary">
           Journeyを完了しました。二人で積み重ねた対話は、ふたりページに記録されています。
         </p>
       ) : null}

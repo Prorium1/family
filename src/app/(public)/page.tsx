@@ -9,14 +9,16 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 import { MessagesSquare, ShieldCheck, Sparkles, Lock } from 'lucide-react'
+import { BrandMark } from '@/components/shared/brand-mark'
 
 /** Landing page (spec §35). Warm, honest, and free of fear marketing. */
 export default function LandingPage() {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-gradient-to-b from-surface to-background">
+      <section className="bg-wash">
         <div className="mx-auto flex max-w-3xl flex-col items-center px-4 py-20 text-center">
+          <BrandMark className="mb-6 h-16 w-24" state="together" />
           <h1 className="text-3xl leading-snug font-bold sm:text-4xl">
             二人の会話を、
             <br className="sm:hidden" />
@@ -115,9 +117,9 @@ export default function LandingPage() {
               </p>
             </CardContent>
           </Card>
-          <Card className="border-accent/40">
+          <Card className="border-primary/30 bg-wash">
             <CardContent className="pt-5">
-              <p className="text-sm font-medium text-accent-foreground">二人の答えがそろいました。</p>
+              <p className="text-blend text-sm font-semibold">二人の答えがそろいました。</p>
               <p className="mt-1 text-xs text-text-muted">愛の通訳から、二人へのメッセージが届きます。</p>
             </CardContent>
           </Card>

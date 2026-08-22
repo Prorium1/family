@@ -3,81 +3,156 @@
 
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
-/* ────────────────────────────────────────────────────────────
-   Design tokens — spec §20
-   Light: warm ivory ground, calm coral primary, deep blue-gray
-   secondary, soft sage accent. All colors meet WCAG AA on
-   their intended surfaces.
-   ──────────────────────────────────────────────────────────── */
+/* ════════════════════════════════════════════════════════════════════
+   BRAND TOKENS — derived from the logo, not invented.
+   See docs/BRAND.md for the rulebook. src/tests/unit/brand.test.ts
+   fails the build if these values or their contrast ratios drift.
+
+   The logo is two translucent circles overlapping into a lens:
+     left  circle  #67aefd  hsl(212, 97%, 70%)   ← one person
+     right circle  #fd7fa2  hsl(343, 97%, 75%)   ← the other person
+     the overlap   #d5b2e2  hsl(284, 45%, 79%)   ← the two, together
+
+   284° sits almost exactly halfway between 212° and 343°, so "two
+   minds blending into one" is literally the hue geometry of the mark.
+   Every interactive surface in this product is built on that line:
+   blue = one person, pink = the other, purple = what they make together.
+   ════════════════════════════════════════════════════════════════════ */
+
 :root {
-  --background: #faf6ef; /* warm ivory */
+  /* ── Identity: the exact logo values. Decorative / large-surface only;
+        never as text or icon color on a light background. ── */
+  --brand-blue: #67aefd;
+  --brand-purple: #d5b2e2;
+  --brand-pink: #fd7fa2;
+
+  /* ── Ground ── */
+  --background: #fbfafd; /* the faintest lavender white */
   --surface: #ffffff;
-  --surface-muted: #f4efe6;
-  --primary: #a85042; /* calm coral, AA on white */
-  --primary-strong: #8f4237;
-  --primary-foreground: #ffffff;
-  --secondary: #44546a; /* deep blue-gray */
-  --secondary-foreground: #ffffff;
-  --accent: #8ba888; /* soft sage */
-  --accent-soft: #e7efe6;
-  --accent-foreground: #2c3e2b;
-  --text: #1d2433; /* near-black navy */
-  --text-muted: #5d6168; /* warm gray, AA on muted surfaces */
-  --border: #e5ddcf;
-  --input: #d9d2c4;
-  --ring: #a85042;
-  --success: #3d6a4a;
-  --success-soft: #e4efe7;
-  --warning: #8a5d12;
-  --warning-soft: #f7edda;
-  --danger: #b3362c;
-  --danger-soft: #f8e5e2;
-  --radius: 1.25rem; /* 20px — spec asks 16–24px */
+  --surface-muted: #f5f1f9;
+
+  /* ── The blend: primary action = what the two do together.
+        Primary surfaces are filled with the logo gradient itself, so the
+        ink on them is dark — white would sit at 2.4:1 (docs/BRAND.md §4). ── */
+  --primary: #9b45ba; /* the blend as readable text / icons */
+  --primary-strong: #83319f;
+  --primary-foreground: #ffffff; /* on the solid purple, not on the gradient */
+  --on-blend: #1f1a2b; /* ≥7:1 at every stop of the logo gradient */
+
+  /* ── Person identity: readable weights of each side of the logo ── */
+  --person-a: #0a67d8;
+  --person-b: #d4004a;
+  --person-a-soft: #e9f3ff;
+  --person-b-soft: #ffeef3;
+  --together-soft: #f6edfb;
+
+  /* ── Ink ── */
+  --text: #1f1a2b; /* near-black, carrying a trace of the purple */
+  --text-muted: #5f5870;
+
+  /* ── Lines ── */
+  --border: #e7e0ee;
+  --input: #9283a4; /* ≥3:1 on surface — WCAG 1.4.11 */
+  --ring: #9b45ba;
+
+  /* ── Semantic. Danger is pushed to an orange-red (hue 16°) so it sits
+        well clear of the partner's pink (343°) and can never be read as
+        "something about them". ── */
+  --success: #1a7548;
+  --success-soft: #e6f4ec;
+  --warning: #8a5a00;
+  --warning-soft: #fbf0dc;
+  --danger: #b64116;
+  --danger-soft: #fcf1ee;
+
+  /* ── Form ── */
+  --radius: 1.25rem;
   --radius-sm: 1rem;
   --radius-lg: 1.5rem;
-  --shadow-card: 0 1px 2px rgb(29 36 51 / 0.04), 0 4px 16px rgb(29 36 51 / 0.06);
+  --shadow-card: 0 1px 2px rgb(31 26 43 / 0.04), 0 6px 20px rgb(83 49 110 / 0.07);
+  --shadow-lift: 0 2px 6px rgb(31 26 43 / 0.06), 0 12px 32px rgb(83 49 110 / 0.12);
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  /* ── Gradients: the mark, in motion ──
+        `blend` is the logo, untouched: 水色 → 紫 → ピンク. It fills primary
+        actions, the mark, progress and rules — always under --on-blend ink.
+        `ink` is the same three hues darkened until they can be text. ── */
+  --gradient-blend: linear-gradient(
+    100deg,
+    var(--brand-blue),
+    var(--brand-purple) 50%,
+    var(--brand-pink)
+  );
+  --gradient-ink: linear-gradient(
+    100deg,
+    var(--person-a),
+    var(--primary) 50%,
+    var(--person-b)
+  );
+  --gradient-wash: linear-gradient(
+    140deg,
+    var(--person-a-soft),
+    var(--together-soft) 50%,
+    var(--person-b-soft)
+  );
 }
 
 [data-theme='dark'] {
-  --background: #16181f;
-  --surface: #1f222b;
-  --surface-muted: #262a34;
-  --primary: #d98a7a;
-  --primary-strong: #e29c8e;
-  --primary-foreground: #2b1512;
-  --secondary: #9fb0c7;
-  --secondary-foreground: #141a23;
-  --accent: #93b28f;
-  --accent-soft: #243023;
-  --accent-foreground: #cfe0cc;
-  --text: #edeae3;
-  --text-muted: #a6a9b0;
-  --border: #333845;
-  --input: #3d4250;
-  --ring: #d98a7a;
-  --success: #7dab8c;
-  --success-soft: #223328;
-  --warning: #d1a355;
-  --warning-soft: #362d1b;
-  --danger: #de7a70;
-  --danger-soft: #3a2320;
-  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 16px rgb(0 0 0 / 0.25);
+  --brand-blue: #67aefd;
+  --brand-purple: #d5b2e2;
+  --brand-pink: #fd7fa2;
+
+  --background: #141220;
+  --surface: #1b1b24;
+  --surface-muted: #252334;
+
+  --primary: #cb90dc;
+  --primary-strong: #dcaae9;
+  --primary-foreground: #2a0d33;
+  /* the mark does not change with the theme, so neither does its ink */
+  --on-blend: #1f1a2b;
+
+  --person-a: #8dc3fe;
+  --person-b: #ff9db6;
+  --person-a-soft: #16243a;
+  --person-b-soft: #331722;
+  --together-soft: #2a1f38;
+
+  --text: #f0ecf5;
+  --text-muted: #b0a8bd;
+
+  --border: #332f42;
+  --input: #736c8e;
+  --ring: #cb90dc;
+
+  --success: #6cc094;
+  --success-soft: #12301f;
+  --warning: #e0aa4e;
+  --warning-soft: #33260f;
+  --danger: #f49471;
+  --danger-soft: #3a2118;
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 6px 20px rgb(0 0 0 / 0.3);
+  --shadow-lift: 0 2px 6px rgb(0 0 0 / 0.45), 0 12px 32px rgb(0 0 0 / 0.4);
 }
 
 @theme inline {
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-purple: var(--brand-purple);
+  --color-brand-pink: var(--brand-pink);
   --color-background: var(--background);
   --color-surface: var(--surface);
   --color-surface-muted: var(--surface-muted);
   --color-primary: var(--primary);
   --color-primary-strong: var(--primary-strong);
   --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-accent: var(--accent);
-  --color-accent-soft: var(--accent-soft);
-  --color-accent-foreground: var(--accent-foreground);
+  --color-on-blend: var(--on-blend);
+  --color-person-a: var(--person-a);
+  --color-person-b: var(--person-b);
+  --color-person-a-soft: var(--person-a-soft);
+  --color-person-b-soft: var(--person-b-soft);
+  --color-together-soft: var(--together-soft);
   --color-text: var(--text);
   --color-text-muted: var(--text-muted);
   --color-border: var(--border);
@@ -92,10 +167,11 @@
   --radius-card: var(--radius);
   --radius-card-sm: var(--radius-sm);
   --radius-card-lg: var(--radius-lg);
+  --shadow-card: var(--shadow-card);
+  --shadow-lift: var(--shadow-lift);
   --font-sans:
     'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic UI', 'Meiryo',
     system-ui, -apple-system, sans-serif;
-  --shadow-card: var(--shadow-card);
 }
 
 html {
@@ -117,6 +193,43 @@ body {
   outline-offset: 2px;
 }
 
+/* ── Brand utilities ─────────────────────────────────────────────── */
+
+/* The logo gradient, as a fill: 水色 → 紫 → ピンク. Primary actions, the
+   mark, progress and rules. Always pair with `text-on-blend`. */
+.bg-blend {
+  background-image: var(--gradient-blend);
+}
+
+/* A whisper of the mark behind a whole panel. */
+.bg-wash {
+  background-image: var(--gradient-wash);
+}
+
+/* Text set in the blend — reserved for the wordmark and reveal headline.
+   Falls back to a solid accessible color where background-clip is absent. */
+.text-blend {
+  color: var(--primary);
+}
+
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .text-blend {
+    background-image: var(--gradient-ink);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+/* The lens where the two circles meet — the logo's core shape, used as a
+   hairline under headings that belong to both people. */
+.rule-blend {
+  height: 2px;
+  border: 0;
+  background-image: var(--gradient-blend);
+  border-radius: 2px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -128,7 +241,8 @@ body {
   }
 }
 
-/* gentle celebration for reveal moments — no confetti */
+/* Two answers arriving at once: they rise together, never one before the
+   other. No confetti, no bounce — spec §20. */
 @keyframes gentle-rise {
   from {
     opacity: 0;
@@ -142,4 +256,19 @@ body {
 
 .animate-gentle-rise {
   animation: gentle-rise 0.45s ease-out both;
+}
+
+/* The overlap slowly finding itself — for the waiting state only. */
+@keyframes lens-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.animate-lens-breathe {
+  animation: lens-breathe 3.2s ease-in-out infinite;
 }

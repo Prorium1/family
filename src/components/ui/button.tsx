@@ -3,17 +3,30 @@ import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
+/**
+ * Button variants follow docs/BRAND.md §3 — the fill says whose action it is.
+ *
+ *   primary   the blend      something the two do together (one per screen)
+ *   personA   blue side      something that belongs to you
+ *   personB   pink side      something that belongs to your partner
+ *   outline   neutral        secondary paths
+ *   danger    orange-red     destructive, deliberately outside the brand hues
+ */
 const buttonVariants = cva(
   // min-h keeps every button a comfortable ≥44px tap target (spec §20)
-  'inline-flex min-h-11 items-center justify-center gap-2 rounded-card-sm px-5 text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0',
+  'inline-flex min-h-11 items-center justify-center gap-2 rounded-card-sm px-5 text-sm font-medium transition-[background-color,box-shadow,opacity] disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0',
   {
     variants: {
       variant: {
-        primary: 'bg-primary text-primary-foreground hover:bg-primary-strong',
-        secondary: 'bg-secondary text-secondary-foreground hover:opacity-90',
+        // The logo itself, as a fill: 水色 → 紫 → ピンク. Dark ink, because
+        // the mark's own colors are too light to carry white (§4).
+        primary: 'bg-blend text-on-blend shadow-card hover:opacity-90',
+        secondary: 'bg-primary text-primary-foreground hover:bg-primary-strong',
         outline: 'border border-border bg-surface text-text hover:bg-surface-muted',
         ghost: 'text-text hover:bg-surface-muted',
-        soft: 'bg-accent-soft text-accent-foreground hover:opacity-90',
+        soft: 'bg-together-soft text-primary hover:bg-surface-muted',
+        personA: 'bg-person-a-soft text-person-a hover:opacity-90',
+        personB: 'bg-person-b-soft text-person-b hover:opacity-90',
         danger: 'bg-danger text-white hover:opacity-90',
         link: 'min-h-0 px-0 text-primary underline-offset-4 hover:underline',
       },

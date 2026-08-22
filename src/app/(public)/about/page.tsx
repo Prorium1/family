@@ -6,7 +6,7 @@ export default function AboutPage() {
   return (
     <article className="mx-auto max-w-2xl space-y-6 px-4 py-12 leading-relaxed">
       <h1 className="text-2xl font-bold">このアプリについて</h1>
-      <blockquote className="border-l-4 border-accent pl-4 text-text-muted italic">
+      <blockquote className="border-l-4 border-primary pl-4 text-text-muted italic">
         世界を幸せにしたい人が、一番近くの人を幸せにできている。
         <br />
         その状態は、ものすごく美しい。

@@ -53,9 +53,9 @@ export default async function RepairSessionPage({ params }: PageProps<'/repair/[
         />
       ) : repair.insightStatus === 'ready' && repair.insight ? (
         <div className="animate-gentle-rise space-y-5">
-          <Card className="border-accent/40">
+          <Card className="border-primary/30">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-accent-foreground">
+              <CardTitle className="flex items-center gap-2 text-primary">
                 <Sparkles className="size-4" aria-hidden="true" />
                 愛の通訳からのメッセージ
               </CardTitle>
@@ -75,7 +75,7 @@ export default async function RepairSessionPage({ params }: PageProps<'/repair/[
                 </div>
               ) : null}
               {repair.insight.sharedGoal ? (
-                <div className="rounded-card-sm bg-accent-soft px-4 py-3 text-accent-foreground">
+                <div className="rounded-card-sm bg-together-soft px-4 py-3 text-primary">
                   <h3 className="text-xs font-semibold">二人の共通の願い</h3>
                   <p className="mt-1 font-medium">{repair.insight.sharedGoal}</p>
                 </div>

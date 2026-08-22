@@ -12,9 +12,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export const metadata = { title: 'ふたりの取扱説明書' }
 
-const sourceLabels: Record<string, { label: string; variant: 'success' | 'accent' | 'warning' | 'default' }> = {
+const sourceLabels: Record<string, { label: string; variant: 'success' | 'together' | 'warning' | 'default' }> = {
   user_stated: { label: '本人が回答', variant: 'success' },
-  shared_agreement: { label: '二人の合意', variant: 'accent' },
+  shared_agreement: { label: '二人の合意', variant: 'together' },
   ai_inference: { label: 'AIの推測', variant: 'warning' },
   needs_confirmation: { label: '確認待ち', variant: 'default' },
 }

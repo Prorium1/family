@@ -1,6 +1,7 @@
 import type { RevealedAnswerDTO } from '@/types/dto'
 import type { AnswerValue } from '@/types/entities'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { BrandMark } from '@/components/shared/brand-mark'
 
 function renderValue(value: AnswerValue): string {
   switch (value.kind) {
@@ -15,7 +16,14 @@ function renderValue(value: AnswerValue): string {
   }
 }
 
-/** Both answers, shown only after the simultaneous reveal (spec §4-3). */
+/**
+ * Both answers, shown only after the simultaneous reveal (spec §4-3).
+ *
+ * This is the moment the whole product is built around, so it is also where
+ * the brand is most literal (docs/BRAND.md §3): the partner's card carries
+ * their hue, yours carries yours, and the headline above them is the blend —
+ * the thing the two of you just made together.
+ */
 export function RevealPanel({
   mine,
   partner,
@@ -25,22 +33,33 @@ export function RevealPanel({
 }) {
   return (
     <div className="animate-gentle-rise space-y-3">
-      <p className="rounded-card bg-accent-soft px-4 py-3 text-center text-sm font-semibold text-accent-foreground">
-        二人の答えがそろいました
-      </p>
+      <div className="bg-wash rounded-card px-4 py-4 text-center">
+        <BrandMark className="mx-auto h-7 w-10" state="together" />
+        <p className="text-blend mt-2 text-sm font-semibold">二人の答えがそろいました</p>
+      </div>
       <div className="grid gap-3 sm:grid-cols-2">
-        {[partner, mine].filter(Boolean).map((answer) => (
-          <Card key={answer!.userId}>
+        <Card className="border-person-b/25 bg-person-b-soft">
+          <CardHeader>
+            <CardTitle className="text-person-b text-sm">{partner.displayName}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm leading-relaxed whitespace-pre-wrap">
+              {renderValue(partner.value)}
+            </p>
+          </CardContent>
+        </Card>
+        {mine ? (
+          <Card className="border-person-a/25 bg-person-a-soft">
             <CardHeader>
-              <CardTitle className="text-sm text-text-muted">{answer!.displayName}</CardTitle>
+              <CardTitle className="text-person-a text-sm">{mine.displayName}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                {renderValue(answer!.value)}
+                {renderValue(mine.value)}
               </p>
             </CardContent>
           </Card>
-        ))}
+        ) : null}
       </div>
     </div>
   )

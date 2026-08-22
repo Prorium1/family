@@ -26,7 +26,7 @@ export default function BillingSettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            現在のプラン <Badge variant="accent">{planLabels.free}</Badge>
+            現在のプラン <Badge variant="together">{planLabels.free}</Badge>
           </CardTitle>
           <CardDescription>
             プレミアムは一人ずつではなく、一組のカップル単位のプランです。決済機能は準備中です。

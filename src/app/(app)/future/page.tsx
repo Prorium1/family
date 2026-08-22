@@ -39,7 +39,7 @@ export default async function FuturePage() {
                 <CardTitle className="flex items-center gap-2">
                   <Icon className="size-4 text-primary" aria-hidden="true" />
                   {title}
-                  {count > 0 ? <Badge variant="accent">{count}件の約束</Badge> : null}
+                  {count > 0 ? <Badge variant="together">{count}件の約束</Badge> : null}
                 </CardTitle>
                 <CardDescription>{body}</CardDescription>
               </CardHeader>

@@ -35,7 +35,7 @@ export function AgreementForm({ defaultCategory }: { defaultCategory?: FutureCat
 
   if (state.createdId) {
     return (
-      <p className="animate-gentle-rise rounded-card bg-accent-soft px-4 py-3 text-sm font-medium text-accent-foreground">
+      <p className="animate-gentle-rise rounded-card bg-together-soft px-4 py-3 text-sm font-medium text-primary">
         二人の約束を記録しました。約束は固定された契約ではなく、いつでも見直せます。
       </p>
     )

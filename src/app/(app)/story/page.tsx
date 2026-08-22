@@ -72,7 +72,7 @@ export default async function StoryPage() {
               {story.sharedValues.map((value) => (
                 <li
                   key={value}
-                  className="rounded-full bg-accent-soft px-3 py-1 text-xs text-accent-foreground"
+                  className="rounded-full bg-together-soft px-3 py-1 text-xs text-primary"
                 >
                   {value}
                 </li>
