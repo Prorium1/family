@@ -86,6 +86,46 @@ describe('login links cannot be used to flood an inbox (§8)', () => {
   })
 })
 
+describe('a real deployment cannot write intimate text in the clear (§11)', () => {
+  it('refuses to boot without an encryption key when demo mode is off', () => {
+    const env = readFileSync('src/config/server-env.ts', 'utf8')
+    expect(env).toContain('DATA_ENCRYPTION_KEY')
+    expect(env).toMatch(/NEXT_PUBLIC_DEMO_MODE !== 'true'/)
+    expect(env).toMatch(/throw new Error/)
+  })
+
+  it('seals every column that holds what someone wrote', () => {
+    const rows = readFileSync('src/server/repositories/supabase/rows.ts', 'utf8')
+    const driver = readFileSync('src/server/repositories/supabase/driver.ts', 'utf8')
+    const fields = [
+      'answers.value',
+      'answer_revisions.value',
+      'ai_insights.payload',
+      'repair_entries.text',
+      'repair_insights.payload',
+      'repair_agreements.text',
+      'we_entries.title',
+      'we_entries.body',
+      'agreements.decision',
+      'relationship_manual_items.statement',
+      'weekly_checkin_answers.answers',
+    ]
+    for (const field of fields) {
+      expect(rows, `${field} must be listed in SEALED`).toContain(field)
+    }
+    // …and both directions are wired: nothing is written or read unsealed
+    expect(driver).toMatch(/sealJson\(answer\.value/)
+    expect(driver).toMatch(/sealText\(entry\.text/)
+    expect(rows).toMatch(/openJson\(row\.value/)
+    expect(rows).toMatch(/openText\(row\.text/)
+  })
+
+  it('says out loud what encryption does not protect against', () => {
+    const security = readFileSync('docs/SECURITY.md', 'utf8')
+    expect(security).toContain('運営')
+  })
+})
+
 describe('the privacy page only claims what the code does (§1–§9)', () => {
   const page = readFileSync('src/app/(public)/privacy/page.tsx', 'utf8')
   const security = readFileSync('docs/SECURITY.md', 'utf8')

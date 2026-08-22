@@ -1,3 +1,32 @@
+import { openJson, openText } from '@/lib/security/field-crypto'
+
+/**
+ * Field names double as the encryption's additional authenticated data, so a
+ * ciphertext cannot be lifted from one column into another
+ * (docs/SECURITY.md §11). Keep these strings stable: changing one makes rows
+ * written under the old name unreadable.
+ */
+export const SEALED = {
+  answerValue: 'answers.value',
+  answerRevision: 'answer_revisions.value',
+  insightPayload: 'ai_insights.payload',
+  repairEntry: 'repair_entries.text',
+  repairInsight: 'repair_insights.payload',
+  repairAgreement: 'repair_agreements.text',
+  weTitle: 'we_entries.title',
+  weBody: 'we_entries.body',
+  agreementTitle: 'agreements.title',
+  agreementBackground: 'agreements.background',
+  agreementDecision: 'agreements.decision',
+  revisionTitle: 'agreement_revisions.title',
+  revisionBackground: 'agreement_revisions.background',
+  revisionDecision: 'agreement_revisions.decision',
+  revisionComment: 'agreement_revisions.comment',
+  manualStatement: 'relationship_manual_items.statement',
+  checkinAnswers: 'weekly_checkin_answers.answers',
+  timelineTitle: 'timeline_events.title',
+} as const
+
 import type {
   Agreement,
   AgreementRevision,
@@ -97,8 +126,8 @@ export function mapWeEntry(row: WeEntryRow): WeEntry {
     id: row.id,
     coupleId: row.couple_id,
     kind: row.kind as WeEntry['kind'],
-    title: row.title,
-    body: row.body,
+    title: openText(row.title, SEALED.weTitle),
+    body: openText(row.body, SEALED.weBody),
     sourceType: row.source_type as WeEntry['sourceType'],
     sourceId: row.source_id,
     createdByUserId: row.created_by_user_id ?? '',
@@ -271,7 +300,7 @@ export function mapAnswer(row: AnswerRow): Answer {
     assignmentId: row.assignment_id,
     coupleId: row.couple_id,
     userId: row.user_id,
-    value: row.value,
+    value: openJson(row.value, SEALED.answerValue),
     visibility: row.visibility as VisibilityLevel,
     submitted: row.submitted,
     submittedAt: row.submitted_at,
@@ -305,7 +334,7 @@ export function mapInsight(row: InsightRow): AiInsightRecord {
     attempt: row.attempt,
     isCurrent: row.is_current,
     status: row.status as AiInsightRecord['status'],
-    payload: row.payload,
+    payload: openJson(row.payload, SEALED.insightPayload),
     createdAt: row.created_at,
   }
 }
@@ -408,7 +437,7 @@ export function mapCheckinAnswer(row: CheckinAnswerRow): WeeklyCheckinAnswer {
     id: row.id,
     checkinId: row.checkin_id,
     userId: row.user_id,
-    answers: row.answers ?? [],
+    answers: openJson(row.answers, SEALED.checkinAnswers) ?? [],
     submitted: row.submitted,
     submittedAt: row.submitted_at,
   }
@@ -463,9 +492,9 @@ export function mapRepairEntry(row: RepairEntryRow): RepairEntry {
     sessionId: row.session_id,
     userId: row.user_id,
     promptId: row.prompt_id,
-    text: row.text,
+    text: openText(row.text, SEALED.repairEntry),
     visibility: row.visibility as VisibilityLevel,
-    sharedExcerpts: row.shared_excerpts ?? [],
+    sharedExcerpts: (row.shared_excerpts ?? []).map((e) => openText(e, SEALED.repairEntry)),
     submitted: row.submitted,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -493,7 +522,7 @@ export function mapRepairInsight(row: RepairInsightRow): RepairInsightRecord {
     attempt: row.attempt,
     isCurrent: row.is_current,
     status: row.status as RepairInsightRecord['status'],
-    payload: row.payload,
+    payload: openJson(row.payload, SEALED.repairInsight),
     createdAt: row.created_at,
   }
 }
@@ -512,7 +541,7 @@ export function mapRepairAgreement(row: RepairAgreementRow): RepairAgreement {
     id: row.id,
     sessionId: row.session_id,
     coupleId: row.couple_id,
-    text: row.text,
+    text: openText(row.text, SEALED.repairAgreement),
     agreedByUserIds: row.agreed_by_user_ids ?? [],
     createdAt: row.created_at,
   }
@@ -538,9 +567,9 @@ export function mapAgreement(row: AgreementRow): Agreement {
     id: row.id,
     coupleId: row.couple_id,
     category: row.category as FutureCategory,
-    title: row.title,
-    background: row.background,
-    decision: row.decision,
+    title: openText(row.title, SEALED.agreementTitle),
+    background: openText(row.background, SEALED.agreementBackground),
+    decision: openText(row.decision, SEALED.agreementDecision),
     startsOn: row.starts_on,
     reviewOn: row.review_on,
     status: row.status as AgreementStatus,
@@ -565,10 +594,10 @@ export function mapAgreementRevision(row: AgreementRevisionRow): AgreementRevisi
   return {
     id: row.id,
     agreementId: row.agreement_id,
-    title: row.title,
-    background: row.background,
-    decision: row.decision,
-    comment: row.comment,
+    title: openText(row.title, SEALED.revisionTitle),
+    background: openText(row.background, SEALED.revisionBackground),
+    decision: openText(row.decision, SEALED.revisionDecision),
+    comment: row.comment === null ? null : openText(row.comment, SEALED.revisionComment),
     editedByUserId: row.edited_by_user_id ?? '',
     editedAt: row.edited_at,
   }
@@ -588,7 +617,7 @@ export function mapTimeline(row: TimelineRow): TimelineEvent {
     id: row.id,
     coupleId: row.couple_id,
     kind: row.kind as TimelineEvent['kind'],
-    title: row.title,
+    title: openText(row.title, SEALED.timelineTitle),
     date: row.date,
     createdAt: row.created_at,
   }
@@ -614,7 +643,7 @@ export function mapManualItem(row: ManualItemRow): RelationshipManualItemRecord 
     coupleId: row.couple_id,
     subjectUserId: row.subject_user_id,
     category: row.category,
-    statement: row.statement,
+    statement: openText(row.statement, SEALED.manualStatement),
     sourceType: row.source_type as ManualSourceType,
     sourceIds: row.source_ids ?? [],
     confidence: row.confidence as Confidence,

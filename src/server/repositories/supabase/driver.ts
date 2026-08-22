@@ -1,12 +1,14 @@
 import 'server-only'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { createSupabaseAdminClient } from '@/lib/supabase/admin'
+import { openJson, sealJson, sealText } from '@/lib/security/field-crypto'
 import { canViewAnswer, isRevealed } from '@/server/policies/assignment-policy'
 import { aiReadableText, redactEntryForPartner } from '@/server/policies/visibility-policy'
 import type { Repositories } from '../repository-types'
 import {
   mapAgreement,
   mapWeEntry,
+  SEALED,
   mapAgreementRevision,
   mapAnswer,
   mapAssignment,
@@ -413,7 +415,7 @@ export function createSupabaseRepositories(): Repositories {
               assignment_id: answer.assignmentId,
               couple_id: answer.coupleId,
               user_id: answer.userId,
-              value: answer.value,
+              value: sealJson(answer.value, SEALED.answerValue),
               visibility: answer.visibility,
             },
             { onConflict: 'assignment_id,user_id' },
@@ -445,14 +447,19 @@ export function createSupabaseRepositories(): Repositories {
           .eq('answer_id', answerId)
         throwIf(error)
         return ((data ?? []) as Array<{ id: string; answer_id: string; value: AnswerRow['value']; edited_at: string }>).map(
-          (r) => ({ id: r.id, answerId: r.answer_id, value: r.value, editedAt: r.edited_at }),
+          (r) => ({
+            id: r.id,
+            answerId: r.answer_id,
+            value: openJson(r.value, SEALED.answerRevision),
+            editedAt: r.edited_at,
+          }),
         )
       },
       async addRevision(revision) {
         const client = await db()
         const { error } = await client.from('answer_revisions').insert({
           answer_id: revision.answerId,
-          value: revision.value,
+          value: sealJson(revision.value, SEALED.answerRevision),
         })
         throwIf(error)
       },
@@ -520,7 +527,7 @@ export function createSupabaseRepositories(): Repositories {
           .from('ai_insights')
           .update({
             status: record.status,
-            payload: record.payload,
+            payload: sealJson(record.payload, SEALED.insightPayload),
             is_current: record.isCurrent,
           })
           .eq('id', record.id)
@@ -658,7 +665,7 @@ export function createSupabaseRepositories(): Repositories {
             {
               checkin_id: answer.checkinId,
               user_id: answer.userId,
-              answers: answer.answers,
+              answers: sealJson(answer.answers, SEALED.checkinAnswers),
               submitted: answer.submitted,
               submitted_at: answer.submittedAt,
             },
@@ -784,9 +791,9 @@ export function createSupabaseRepositories(): Repositories {
               session_id: entry.sessionId,
               user_id: entry.userId,
               prompt_id: entry.promptId,
-              text: entry.text,
+              text: sealText(entry.text, SEALED.repairEntry),
               visibility: entry.visibility,
-              shared_excerpts: entry.sharedExcerpts,
+              shared_excerpts: entry.sharedExcerpts.map((e) => sealText(e, SEALED.repairEntry)),
               submitted: entry.submitted,
             },
             { onConflict: 'session_id,user_id,prompt_id' },
@@ -833,7 +840,7 @@ export function createSupabaseRepositories(): Repositories {
               attempt: record.attempt,
               is_current: record.isCurrent,
               status: record.status,
-              payload: record.payload,
+              payload: sealJson(record.payload, SEALED.insightPayload),
             },
             { onConflict: 'session_id,input_hash,attempt' },
           )
@@ -858,7 +865,7 @@ export function createSupabaseRepositories(): Repositories {
           .insert({
             session_id: agreement.sessionId,
             couple_id: agreement.coupleId,
-            text: agreement.text,
+            text: sealText(agreement.text, SEALED.repairAgreement),
             agreed_by_user_ids: agreement.agreedByUserIds,
           })
           .select()
@@ -897,8 +904,8 @@ export function createSupabaseRepositories(): Repositories {
           .insert({
             couple_id: entry.coupleId,
             kind: entry.kind,
-            title: entry.title,
-            body: entry.body,
+            title: sealText(entry.title, SEALED.weTitle),
+            body: sealText(entry.body, SEALED.weBody),
             source_type: entry.sourceType,
             source_id: entry.sourceId,
             created_by_user_id: entry.createdByUserId,
@@ -939,9 +946,9 @@ export function createSupabaseRepositories(): Repositories {
           .insert({
             couple_id: agreement.coupleId,
             category: agreement.category,
-            title: agreement.title,
-            background: agreement.background,
-            decision: agreement.decision,
+            title: sealText(agreement.title, SEALED.agreementTitle),
+            background: sealText(agreement.background, SEALED.agreementBackground),
+            decision: sealText(agreement.decision, SEALED.agreementDecision),
             starts_on: agreement.startsOn,
             review_on: agreement.reviewOn,
             status: agreement.status,
@@ -956,19 +963,19 @@ export function createSupabaseRepositories(): Repositories {
         const client = await db()
         const { error: rErr } = await client.from('agreement_revisions').insert({
           agreement_id: revision.agreementId,
-          title: revision.title,
-          background: revision.background,
-          decision: revision.decision,
-          comment: revision.comment,
+          title: sealText(revision.title, SEALED.revisionTitle),
+          background: sealText(revision.background, SEALED.revisionBackground),
+          decision: sealText(revision.decision, SEALED.revisionDecision),
+          comment: revision.comment === null ? null : sealText(revision.comment, SEALED.revisionComment),
           edited_by_user_id: revision.editedByUserId,
         })
         throwIf(rErr)
         const { data, error } = await client
           .from('agreements')
           .update({
-            title: agreement.title,
-            background: agreement.background,
-            decision: agreement.decision,
+            title: sealText(agreement.title, SEALED.agreementTitle),
+            background: sealText(agreement.background, SEALED.agreementBackground),
+            decision: sealText(agreement.decision, SEALED.agreementDecision),
             starts_on: agreement.startsOn,
             review_on: agreement.reviewOn,
             status: agreement.status,
@@ -1008,7 +1015,7 @@ export function createSupabaseRepositories(): Repositories {
           .insert({
             couple_id: event.coupleId,
             kind: event.kind,
-            title: event.title,
+            title: sealText(event.title, SEALED.timelineTitle),
             date: event.date,
           })
           .select()
@@ -1037,7 +1044,7 @@ export function createSupabaseRepositories(): Repositories {
             couple_id: item.coupleId,
             subject_user_id: item.subjectUserId,
             category: item.category,
-            statement: item.statement,
+            statement: sealText(item.statement, SEALED.manualStatement),
             source_type: item.sourceType,
             source_ids: item.sourceIds,
             confidence: item.confidence,
