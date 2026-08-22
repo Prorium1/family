@@ -20,15 +20,15 @@ export async function loginAs(page: Page, key: 'a' | 'b' | 'c', next = '/home'):
  * this helper simply returns.
  */
 export async function onboardIfNeeded(page: Page): Promise<void> {
-  const ageCheckbox = page.getByRole('checkbox', { name: '私は18歳以上です' })
-  const appeared = await ageCheckbox
+  // one combined consent checkbox now — spec §7 with minimal taps
+  const consent = page.getByRole('checkbox', { name: /18歳以上/ })
+  const appeared = await consent
     .waitFor({ timeout: 5000 })
     .then(() => true)
     .catch(() => false)
   if (!appeared) return
-  await ageCheckbox.click()
-  await page.getByRole('checkbox', { name: /利用規約/ }).click()
-  await page.getByRole('button', { name: 'はじめる' }).click()
+  await consent.click()
+  await page.getByRole('button', { name: /はじめる/ }).click()
   await page.waitForURL(/\/(pair|home)/)
 }
 
@@ -36,11 +36,28 @@ export async function onboardIfNeeded(page: Page): Promise<void> {
  * Full UI pairing dance: A onboards and creates an invite, B onboards and
  * redeems the 6-digit code. Returns the invite code used.
  */
+/**
+ * Fresh onboarding lands on /pair?auto=1 where the invite self-creates; a
+ * revisit shows the manual button instead (secrets are shown only once).
+ * Handle both so specs can call this at any point in a session.
+ */
+export async function ensureInviteVisible(page: Page): Promise<void> {
+  const code = page.locator(SELECTORS.inviteCode)
+  const already = await code
+    .waitFor({ timeout: 4000 })
+    .then(() => true)
+    .catch(() => false)
+  if (already) return
+  const createButton = page.getByRole('button', { name: '招待リンクとコードを作成' })
+  if (await createButton.isVisible().catch(() => false)) await createButton.click()
+  await code.waitFor()
+}
+
 export async function pairCoupleViaUi(page: Page): Promise<string> {
   await loginAs(page, 'a', '/onboarding')
   await onboardIfNeeded(page)
   await page.waitForURL(/\/pair/)
-  await page.getByRole('button', { name: '招待リンクとコードを作成' }).click()
+  await ensureInviteVisible(page)
   const code = (await page.locator(SELECTORS.inviteCode).textContent())?.trim() ?? ''
   expect(code).toMatch(/^\d{6}$/)
 

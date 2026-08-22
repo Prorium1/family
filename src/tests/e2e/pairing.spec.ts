@@ -1,5 +1,12 @@
 import { expect, test } from '@playwright/test'
-import { loginAs, onboardIfNeeded, openTodayQuestion, pairCoupleViaUi, resetDemo } from './helpers'
+import {
+  ensureInviteVisible,
+  loginAs,
+  onboardIfNeeded,
+  openTodayQuestion,
+  pairCoupleViaUi,
+  resetDemo,
+} from './helpers'
 
 test.describe('ペアリング (spec §37-1)', () => {
   test.beforeEach(async ({ request }) => {
@@ -32,8 +39,7 @@ test.describe('ペアリング (spec §37-1)', () => {
   test('a wrong invite code is rejected with a gentle error', async ({ page }) => {
     await loginAs(page, 'a', '/onboarding')
     await onboardIfNeeded(page)
-    await page.getByRole('button', { name: '招待リンクとコードを作成' }).click()
-    await expect(page.locator('[data-testid="invite-code"]')).toBeVisible()
+    await ensureInviteVisible(page)
 
     await loginAs(page, 'b', '/onboarding')
     await onboardIfNeeded(page)

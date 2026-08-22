@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { RELATIONSHIP_STAGES } from '@/types/domain'
@@ -25,7 +26,16 @@ export async function createInviteAction(
   const session = await requireOnboardedSession()
   const stage = z.enum(RELATIONSHIP_STAGES).catch('dating').parse(formData.get('stage'))
   try {
-    const invite = await createInvitation(session.userId, stage)
+    // Build the link on the host the inviter is actually browsing, so it
+    // works across preview/production domains without reconfiguration.
+    const h = await headers()
+    const host = h.get('x-forwarded-host') ?? h.get('host')
+    const proto = h.get('x-forwarded-proto') ?? 'https'
+    const invite = await createInvitation(
+      session.userId,
+      stage,
+      host ? `${proto}://${host}` : undefined,
+    )
     return { invite }
   } catch (error) {
     if (error instanceof PairingError && error.code === 'already_paired') {

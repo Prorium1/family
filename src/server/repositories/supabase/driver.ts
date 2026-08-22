@@ -86,6 +86,22 @@ export function createSupabaseRepositories(): Repositories {
         } = await client.auth.getUser()
         return mapProfile(data as ProfileRow, user?.id === id ? (user.email ?? '') : '')
       },
+      async ensure(id, defaults) {
+        const client = await db()
+        const { data: existing } = await client
+          .from('profiles')
+          .select('*')
+          .eq('id', id)
+          .maybeSingle()
+        if (existing) return mapProfile(existing as ProfileRow, defaults.email)
+        const { data, error } = await client
+          .from('profiles')
+          .insert({ id, display_name: defaults.displayName })
+          .select()
+          .single()
+        throwIf(error)
+        return mapProfile(data as ProfileRow, defaults.email)
+      },
       async update(id, patch) {
         const client = await db()
         const { data, error } = await client
@@ -209,6 +225,23 @@ export function createSupabaseRepositories(): Repositories {
           .maybeSingle()
         throwIf(error)
         return data ? mapInvitation(data as InvitationRow) : null
+      },
+      async peekBySecretHash(secretHash) {
+        // security-definer RPC (0006): safe for anonymous /join lookups —
+        // returns only the inviter's display name and the stage.
+        const client = await db()
+        const { data, error } = await client.rpc('peek_couple_invitation', {
+          p_secret_hash: secretHash,
+        })
+        throwIf(error)
+        const row = (Array.isArray(data) ? data[0] : data) as
+          | { inviter_name: string; stage: string }
+          | undefined
+        if (!row) return null
+        return {
+          inviterName: row.inviter_name,
+          stage: row.stage as import('@/types/domain').RelationshipStage,
+        }
       },
       async listActive() {
         const client = await db()

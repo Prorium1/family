@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useState } from 'react'
 import {
   completeOnboardingAction,
   type OnboardingActionState,
@@ -17,7 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { useState } from 'react'
 
 const stageLabels: Record<RelationshipStage, string> = {
   dating: '恋人',
@@ -31,8 +30,20 @@ const stageLabels: Record<RelationshipStage, string> = {
   long_term_partners: '長期パートナー',
 }
 
-/** Minimal onboarding (spec §7): no birthdate, no address, no employer. */
-export function OnboardingForm({ initialName }: { initialName: string }) {
+/**
+ * Minimal onboarding (spec §7): a name, one consent, one tap. An invited
+ * partner is not asked for the relationship stage — the invitation already
+ * carries it, so their path is even shorter.
+ */
+export function OnboardingForm({
+  initialName,
+  invited,
+  inviterName,
+}: {
+  initialName: string
+  invited: boolean
+  inviterName?: string
+}) {
   const [state, formAction, pending] = useActionState<OnboardingActionState, FormData>(
     completeOnboardingAction,
     {},
@@ -41,6 +52,14 @@ export function OnboardingForm({ initialName }: { initialName: string }) {
 
   return (
     <form action={formAction} className="space-y-5">
+      {invited && inviterName ? (
+        <p className="bg-wash rounded-card px-4 py-3 text-sm">
+          登録が終わると、自動で
+          <span className="text-primary font-semibold">{inviterName}さん</span>
+          とつながります。
+        </p>
+      ) : null}
+
       <div className="space-y-1.5">
         <Label htmlFor="displayName">表示名</Label>
         <Input
@@ -56,22 +75,24 @@ export function OnboardingForm({ initialName }: { initialName: string }) {
         </p>
       </div>
 
-      <div className="space-y-1.5">
-        <Label htmlFor="stage-select">今の二人の関係</Label>
-        <Select value={stage} onValueChange={(v) => setStage(v as RelationshipStage)}>
-          <SelectTrigger id="stage-select">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {RELATIONSHIP_STAGES.map((s) => (
-              <SelectItem key={s} value={s}>
-                {stageLabels[s]}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <input type="hidden" name="stage" value={stage} />
-      </div>
+      {!invited ? (
+        <div className="space-y-1.5">
+          <Label htmlFor="stage-select">今の二人の関係</Label>
+          <Select value={stage} onValueChange={(v) => setStage(v as RelationshipStage)}>
+            <SelectTrigger id="stage-select">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {RELATIONSHIP_STAGES.map((s) => (
+                <SelectItem key={s} value={s}>
+                  {stageLabels[s]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      ) : null}
+      <input type="hidden" name="stage" value={stage} />
 
       <input type="hidden" name="locale" value="ja" />
       <input
@@ -82,12 +103,9 @@ export function OnboardingForm({ initialName }: { initialName: string }) {
 
       <div className="space-y-3 rounded-card border border-border p-4">
         <Label className="flex items-start gap-3 font-normal">
-          <Checkbox name="ageConfirmed" required className="mt-0.5" />
-          <span>私は18歳以上です</span>
-        </Label>
-        <Label className="flex items-start gap-3 font-normal">
-          <Checkbox name="termsAccepted" required className="mt-0.5" />
+          <Checkbox name="consent" required className="mt-0.5" />
           <span>
+            私は18歳以上で、
             <a href="/terms" className="text-primary underline" target="_blank">
               利用規約
             </a>
@@ -116,7 +134,7 @@ export function OnboardingForm({ initialName }: { initialName: string }) {
       ) : null}
 
       <Button type="submit" className="w-full" disabled={pending}>
-        はじめる
+        {invited ? '登録して、二人ではじめる' : 'はじめる'}
       </Button>
     </form>
   )
