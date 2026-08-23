@@ -54,7 +54,7 @@ export async function ensureInviteVisible(page: Page): Promise<void> {
     .then(() => true)
     .catch(() => false)
   if (already) return
-  const createButton = page.getByRole('button', { name: '招待リンクとコードを作成' })
+  const createButton = page.getByRole('button', { name: '招待コードを作成' })
   if (await createButton.isVisible().catch(() => false)) await createButton.click()
   await code.waitFor()
 }
@@ -64,16 +64,18 @@ export async function pairCoupleViaUi(page: Page): Promise<string> {
   await onboardIfNeeded(page, { name: '1人目', gender: '男性' })
   await page.waitForURL(/\/pair/)
   await ensureInviteVisible(page)
-  const code = (await page.locator(SELECTORS.inviteCode).textContent())?.trim() ?? ''
-  expect(code).toMatch(/^\d{6}$/)
+  // shown grouped in threes (123・456); typed back exactly as displayed, so
+  // this also proves the screen's own formatting is accepted
+  const shown = (await page.locator(SELECTORS.inviteCode).textContent())?.trim() ?? ''
+  expect(shown).toMatch(/^\d{3}・\d{3}$/)
 
   await loginAs(page, 'b', '/onboarding')
   await onboardIfNeeded(page, { name: '2人目', gender: '男性' })
   await page.waitForURL(/\/pair/)
-  await page.getByLabel('招待コード').fill(code)
-  await page.getByRole('button', { name: '参加する' }).click()
+  await page.getByLabel('相手のコード / 招待リンク').fill(shown)
+  await page.getByRole('button', { name: '二人をつなぐ' }).click()
   await page.waitForURL(/\/home/)
-  return code
+  return shown.replace('・', '')
 }
 
 /** Open today's question from home and return the assignment URL. */

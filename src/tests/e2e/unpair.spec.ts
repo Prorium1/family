@@ -17,6 +17,6 @@ test.describe('ペア解除 (spec §37-4)', () => {
     // B is back to unpaired state — home redirects to /pair
     await loginAs(page, 'b', '/home')
     await page.waitForURL(/\/pair/)
-    await expect(page.getByRole('button', { name: '招待リンクとコードを作成' })).toBeVisible()
+    await expect(page.getByRole('button', { name: '招待コードを作成' })).toBeVisible()
   })
 })

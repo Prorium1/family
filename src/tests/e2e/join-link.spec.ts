@@ -23,8 +23,10 @@ test.describe('招待リンクからのスムーズ参加 (spec §7 activation)'
     expect(inviteUrl).toMatch(/\/join\//)
     // QR code rendered for side-by-side pairing
     await expect(page.getByRole('img', { name: '招待用QRコード' })).toBeVisible()
-    // share affordance present
-    await expect(page.getByRole('button', { name: /招待を送る/ })).toBeVisible()
+    // everything needed to hand the invitation over is already on screen
+    await expect(page.getByRole('button', { name: 'シェア' })).toBeVisible()
+    await expect(page.getByRole('button', { name: '招待リンクをコピー' })).toBeVisible()
+    await expect(page.getByTestId('waiting-for-partner')).toBeVisible()
 
     // B: tap the link on their own phone — a device with no session
     await page.context().clearCookies()

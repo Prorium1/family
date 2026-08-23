@@ -65,7 +65,11 @@
 - `Strict-Transport-Security`: 1年 + preload
 - `X-Frame-Options: DENY` / `frame-ancestors 'none'` — クリックジャッキング対策
 - `Referrer-Policy: strict-origin-when-cross-origin` — 招待トークンを含むパスを外部に渡さない
-- `Permissions-Policy` — カメラ・マイク・位置情報を明示的に無効化
+- `Permissions-Policy` — マイク・位置情報は無効。**カメラだけは `camera=(self)`**、
+  すなわち自サイトのみに許可（埋め込まれた第三者には渡らない）。
+  用途はペアリング画面のQR読み取り**1箇所だけ**で、映像は端末内で復号され、
+  **送信も保存もしません**（`features/pairing/components/qr-scanner.tsx`。
+  アップロード経路が存在しないことを `tests/unit/security.test.ts` が検査します）
 - Cookieは `httpOnly` + `sameSite=lax` + 本番では `secure`
 
 ## 8. 濫用対策

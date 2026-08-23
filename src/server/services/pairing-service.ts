@@ -76,10 +76,17 @@ export async function peekInvitation(
   return getRepositories().invitations.peekBySecretHash(hashInvitationSecret(rawSecret.trim()))
 }
 
-export async function revokeInvitation(inviterUserId: string): Promise<void> {
+/**
+ * Retire the inviter's live invitation. Returns the stage it carried, so a
+ * caller replacing it (「コードを作り直す」) can keep what the couple already
+ * told us instead of quietly resetting it.
+ */
+export async function revokeInvitation(inviterUserId: string): Promise<RelationshipStage | null> {
   const repos = getRepositories()
   const invitation = await repos.invitations.getActiveForInviter(inviterUserId)
-  if (invitation) await repos.invitations.revoke(invitation.id, inviterUserId)
+  if (!invitation) return null
+  await repos.invitations.revoke(invitation.id, inviterUserId)
+  return invitation.relationshipStage
 }
 
 /**
@@ -146,9 +153,7 @@ export async function getPairStatus(userId: string): Promise<PairStatusDTO> {
   const membership = await repos.couples.getForUser(userId)
   if (membership) {
     const partnerMember = membership.members.find((m) => m.userId !== userId && m.active)
-    const partnerProfile = partnerMember
-      ? await repos.profiles.getById(partnerMember.userId)
-      : null
+    const partnerProfile = partnerMember ? await repos.profiles.getById(partnerMember.userId) : null
     return {
       paired: true,
       couple: {

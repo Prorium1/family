@@ -31,10 +31,23 @@ describe('response headers lock the page down (docs/SECURITY.md §7)', () => {
   })
 
   it('turns off the sensors this product never needs', () => {
-    const policy = config.match(/'Permissions-Policy', value: '([^']+)'/)![1]
-    for (const sensor of ['camera=()', 'microphone=()', 'geolocation=()']) {
+    const policy = config.match(/value: '(camera=[^']+)'/)![1]
+    for (const sensor of ['microphone=()', 'geolocation=()', 'interest-cohort=()']) {
       expect(policy).toContain(sensor)
     }
+  })
+
+  it('grants the camera to this origin only, and to nobody else', () => {
+    const policy = config.match(/value: '(camera=[^']+)'/)![1]
+    // the pairing screen reads a QR code; an embedded third party never can
+    expect(policy).toContain('camera=(self)')
+    expect(policy).not.toMatch(/camera=\*/)
+    // …and the frames must stay on the device: no upload path may exist.
+    // Comments are stripped first — a promise in prose is not the code.
+    const scanner = readFileSync('src/features/pairing/components/qr-scanner.tsx', 'utf8')
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/^\s*\/\/.*$/gm, '')
+    expect(scanner).not.toMatch(/fetch\(|FormData|toDataURL|toBlob|sendBeacon|WebSocket/)
   })
 
   it('demands HTTPS and hides the framework', () => {
@@ -133,6 +146,18 @@ describe('the privacy page only claims what the code does (§1–§9)', () => {
   it('names where the data lives and who processes it', () => {
     for (const claim of ['東京', 'Supabase', 'Vercel', 'TLS']) {
       expect(page, `privacy page must state: ${claim}`).toContain(claim)
+    }
+  })
+
+  it('discloses the camera the moment the code can ask for it', () => {
+    const config = readFileSync('next.config.ts', 'utf8')
+    // if the header grants it, the page has to say so — and say the limits
+    if (config.includes('camera=(self)')) {
+      expect(page, 'the privacy page must mention the camera').toContain('カメラ')
+      expect(page).toContain('保存もされません')
+      // …and the person must be told they can pair without it at all
+      expect(page).toMatch(/招待リンク|6桁/)
+      expect(security).toContain('camera=(self)')
     }
   })
 
