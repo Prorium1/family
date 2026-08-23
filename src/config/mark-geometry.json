@@ -1,0 +1,21 @@
+{
+  "phi": 1.61803398875,
+  "radius": 438,
+  "centerDistance": 541.3978,
+  "centerLeftX": 753.3011,
+  "centerRightX": 1294.6989,
+  "centerY": 1085,
+  "headRadius": 83.6506,
+  "headCenterY": 499.4461,
+  "strokeWidth": 39.4944,
+  "headGap": 63.9033,
+  "gradientX1": 315.3011,
+  "gradientX2": 1732.6989,
+  "viewBox": {
+    "x": 295.5539,
+    "y": 415.7955,
+    "width": 1456.8922,
+    "height": 1126.9517
+  },
+  "aspectRatio": 1.2928
+}

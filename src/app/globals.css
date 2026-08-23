@@ -8,23 +8,32 @@
    See docs/BRAND.md for the rulebook. src/tests/unit/brand.test.ts
    fails the build if these values or their contrast ratios drift.
 
-   The logo is two translucent circles overlapping into a lens:
-     left  circle  #67aefd  hsl(212, 97%, 70%)   ← one person
-     right circle  #fd7fa2  hsl(343, 97%, 75%)   ← the other person
-     the overlap   #d5b2e2  hsl(284, 45%, 79%)   ← the two, together
+   The mark is two golden-ratio circles, each with a head above it,
+   overlapping into a lens — and one seamless gradient runs through all
+   of it, left to right, without a seam:
 
-   284° sits almost exactly halfway between 212° and 343°, so "two
-   minds blending into one" is literally the hue geometry of the mark.
-   Every interactive surface in this product is built on that line:
-   blue = one person, pink = the other, purple = what they make together.
+     #36a7f4  hsl(204°)   YOU      the person on the left
+     #6f8ef2  hsl(226°)
+     #ac75e6  hsl(269°)   WE       the lens, where the two overlap
+     #d765cc  hsl(306°)
+     #f74699  hsl(332°)   ME       the person on the right
+
+   269° is the midpoint of 204° and 332° (268.1° exactly), so "two
+   people meeting in the middle" is literally the hue geometry of the
+   mark. Every interactive surface in this product is built on that
+   line: blue = one person, pink = the other, purple = what they make
+   together. The geometry lives in src/config/mark-geometry.json.
    ════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── Identity: the exact logo values. Decorative / large-surface only;
-        never as text or icon color on a light background. ── */
-  --brand-blue: #67aefd;
-  --brand-purple: #d5b2e2;
-  --brand-pink: #fd7fa2;
+  /* ── Identity: the exact five stops of the mark's gradient.
+        Decorative / large-surface only; never as text or icon color on
+        a light background. ── */
+  --brand-blue: #36a7f4;
+  --brand-blue-violet: #6f8ef2;
+  --brand-purple: #ac75e6;
+  --brand-magenta: #d765cc;
+  --brand-pink: #f74699;
 
   /* ── Ground ── */
   --background: #fbfafd; /* the faintest lavender white */
@@ -33,18 +42,18 @@
 
   /* ── The blend: primary action = what the two do together.
         Primary surfaces are filled with the logo gradient itself, so the
-        ink on them is dark — white would sit at 2.4:1 (docs/BRAND.md §4). ── */
-  --primary: #9b45ba; /* the blend as readable text / icons */
-  --primary-strong: #83319f;
+        ink on them is dark — white peaks at 3.3:1 (docs/BRAND.md §4). ── */
+  --primary: #8340c4; /* the lens hue, taken down until it can be text */
+  --primary-strong: #6d2fab;
   --primary-foreground: #ffffff; /* on the solid purple, not on the gradient */
-  --on-blend: #331a52; /* deep violet, on the mark's hue line — not black */
+  --on-blend: #26123c; /* deep violet, on the mark's hue line — not black */
 
-  /* ── Person identity: readable weights of each side of the logo ── */
-  --person-a: #0a67d8;
-  --person-b: #d4004a;
+  /* ── Person identity: readable weights of each end of the mark ── */
+  --person-a: #0e6ac8;
+  --person-b: #c8005c;
   --person-a-soft: #e9f3ff;
   --person-b-soft: #ffeef3;
-  --together-soft: #f6edfb;
+  --together-soft: #f4ecfb;
 
   /* ── Ink ── */
   --text: #1f1a2b; /* near-black, carrying a trace of the purple */
@@ -53,10 +62,10 @@
   /* ── Lines ── */
   --border: #e7e0ee;
   --input: #9283a4; /* ≥3:1 on surface — WCAG 1.4.11 */
-  --ring: #9b45ba;
+  --ring: #8340c4;
 
   /* ── Semantic. Danger is pushed to an orange-red (hue 16°) so it sits
-        well clear of the partner's pink (343°) and can never be read as
+        well clear of the partner's pink (332°) and can never be read as
         "something about them". ── */
   --success: #1a7548;
   --success-soft: #e6f4ec;
@@ -75,21 +84,19 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 
   /* ── Gradients: the mark, in motion ──
-        `blend` is the logo, untouched: 水色 → 紫 → ピンク. It fills primary
-        actions, the mark, progress and rules — always under --on-blend ink.
-        `ink` is the same three hues darkened until they can be text. ── */
+        `blend` is the logo's own gradient, all five stops, evenly spaced
+        so the ramp is seamless. It fills primary actions, the mark,
+        progress and rules — always under --on-blend ink.
+        `ink` is the same line darkened until it can be text. ── */
   --gradient-blend: linear-gradient(
     100deg,
     var(--brand-blue),
+    var(--brand-blue-violet) 30%,
     var(--brand-purple) 50%,
+    var(--brand-magenta) 70%,
     var(--brand-pink)
   );
-  --gradient-ink: linear-gradient(
-    100deg,
-    var(--person-a),
-    var(--primary) 50%,
-    var(--person-b)
-  );
+  --gradient-ink: linear-gradient(100deg, var(--person-a), var(--primary) 50%, var(--person-b));
   --gradient-wash: linear-gradient(
     140deg,
     var(--person-a-soft),
@@ -99,22 +106,24 @@
 }
 
 [data-theme='dark'] {
-  --brand-blue: #67aefd;
-  --brand-purple: #d5b2e2;
-  --brand-pink: #fd7fa2;
+  --brand-blue: #36a7f4;
+  --brand-blue-violet: #6f8ef2;
+  --brand-purple: #ac75e6;
+  --brand-magenta: #d765cc;
+  --brand-pink: #f74699;
 
   --background: #141220;
   --surface: #1b1b24;
   --surface-muted: #252334;
 
-  --primary: #cb90dc;
-  --primary-strong: #dcaae9;
+  --primary: #c79bef;
+  --primary-strong: #d9b6f5;
   --primary-foreground: #2a0d33;
   /* the mark does not change with the theme, so neither does its ink */
-  --on-blend: #331a52;
+  --on-blend: #26123c;
 
-  --person-a: #8dc3fe;
-  --person-b: #ff9db6;
+  --person-a: #8ac9fb;
+  --person-b: #fb92bc;
   --person-a-soft: #16243a;
   --person-b-soft: #331722;
   --together-soft: #2a1f38;
@@ -124,7 +133,7 @@
 
   --border: #332f42;
   --input: #736c8e;
-  --ring: #cb90dc;
+  --ring: #c79bef;
 
   --success: #6cc094;
   --success-soft: #12301f;
@@ -139,7 +148,9 @@
 
 @theme inline {
   --color-brand-blue: var(--brand-blue);
+  --color-brand-blue-violet: var(--brand-blue-violet);
   --color-brand-purple: var(--brand-purple);
+  --color-brand-magenta: var(--brand-magenta);
   --color-brand-pink: var(--brand-pink);
   --color-background: var(--background);
   --color-surface: var(--surface);
@@ -198,8 +209,8 @@ body {
 
 /* ── Brand utilities ─────────────────────────────────────────────── */
 
-/* The logo gradient, as a fill: 水色 → 紫 → ピンク. Primary actions, the
-   mark, progress and rules. Always pair with `text-on-blend`. */
+/* The logo gradient, as a fill: the whole five-stop ramp. Primary
+   actions, the mark, progress and rules. Always pair with `text-on-blend`. */
 .bg-blend {
   background-image: var(--gradient-blend);
 }
@@ -262,7 +273,7 @@ body {
 }
 
 /* A soft light crossing the blend. The gradient itself never moves — the
-   button must always show the whole mark, 水色 → 紫 → ピンク — so what drifts
+   button must always show the whole mark, YOU → WE → ME — so what drifts
    is a highlight above it (docs/BRAND.md §4). Primary actions only, and slow
    enough to read as breathing rather than motion. */
 @keyframes blend-drift {

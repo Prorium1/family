@@ -156,6 +156,23 @@ export default async function RepairSessionPage({ params }: PageProps<'/repair/[
           <Skeleton className="h-4 w-3/4" />
           <Skeleton className="h-4 w-full" />
         </div>
+      ) : repair.insightStatus === 'consent_off' ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>AIの整理はお休み中です</CardTitle>
+            <CardDescription>
+              AI分析に同意していないため、書いた内容はAIに送っていません。下のガイドで、二人のペースで話せます。
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <h3 className="mb-2 text-sm font-semibold">{repairFallbackGuide.title}</h3>
+            <ol className="list-decimal space-y-1.5 pl-5 text-sm text-text-muted">
+              {repairFallbackGuide.steps.map((step) => (
+                <li key={step}>{step}</li>
+              ))}
+            </ol>
+          </CardContent>
+        </Card>
       ) : repair.insightStatus === 'failed' ? (
         <Card>
           <CardHeader>

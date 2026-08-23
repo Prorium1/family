@@ -13,6 +13,7 @@ export async function storeInviteToken(rawToken: string): Promise<void> {
   const store = await cookies()
   store.set(INVITE_COOKIE, rawToken, {
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
     maxAge: 60 * 30, // the walk from link-tap to onboarding is minutes, not days

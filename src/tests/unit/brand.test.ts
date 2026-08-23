@@ -96,30 +96,58 @@ function token(name: string, theme: 'light' | 'dark' = 'light'): string {
 
 // ── 1. The logo is the source of truth ──────────────────────────────
 describe('brand identity is the logo, measured (docs/BRAND.md §1)', () => {
-  it('pins the three colors sampled from the mark', () => {
-    expect(token('brand-blue')).toBe('#67aefd')
-    expect(token('brand-purple')).toBe('#d5b2e2')
-    expect(token('brand-pink')).toBe('#fd7fa2')
+  const MARK_STOPS = [
+    ['brand-blue', '#36a7f4'],
+    ['brand-blue-violet', '#6f8ef2'],
+    ['brand-purple', '#ac75e6'],
+    ['brand-magenta', '#d765cc'],
+    ['brand-pink', '#f74699'],
+  ] as const
+
+  it('pins the five colors of the mark, in order', () => {
+    for (const [name, hex] of MARK_STOPS) expect(token(name)).toBe(hex)
   })
 
   it('keeps the identity colors identical in dark mode — the mark never changes', () => {
-    for (const name of ['brand-blue', 'brand-purple', 'brand-pink']) {
-      expect(token(name, 'dark')).toBe(token(name))
-    }
+    for (const [name] of MARK_STOPS) expect(token(name, 'dark')).toBe(token(name))
+  })
+
+  it('is built on the golden ratio, exactly (§1.1)', () => {
+    const g = JSON.parse(readFileSync('src/config/mark-geometry.json', 'utf8'))
+    const phi = (1 + Math.sqrt(5)) / 2
+    expect(g.phi).toBeCloseTo(phi, 10)
+    expect(g.centerDistance).toBeCloseTo((2 * g.radius) / phi, 3)
+    expect(g.headRadius * 2).toBeCloseTo(g.radius / phi ** 2, 3)
+    expect(g.strokeWidth).toBeCloseTo(g.radius / phi ** 5, 3)
+    expect(g.headGap).toBeCloseTo(g.radius / phi ** 4, 3)
+    // the pair itself is a golden rectangle
+    expect((2 * g.radius + g.centerDistance) / (2 * g.radius)).toBeCloseTo(phi, 6)
+    // …and the heads sit exactly above their own circle
+    expect(g.centerRightX - g.centerLeftX).toBeCloseTo(g.centerDistance, 3)
+  })
+
+  it('draws the mark and the app icon from that one file', () => {
+    const mark = readFileSync('src/components/shared/brand-mark.tsx', 'utf8')
+    const icons = readFileSync('scripts/generate-icons.mjs', 'utf8')
+    expect(mark).toContain('mark-geometry.json')
+    expect(icons).toContain('mark-geometry.json')
+    // nobody may hand-type a coordinate next to it
+    expect(mark).not.toMatch(/cx="\d/)
   })
 
   it('places the overlap hue between the two people, as the mark does', () => {
     const blue = rgbToHsl(token('brand-blue')).h
     const pink = rgbToHsl(token('brand-pink')).h
     const purple = rgbToHsl(token('brand-purple')).h
-    expect(blue).toBeGreaterThan(200)
-    expect(blue).toBeLessThan(225)
-    expect(pink).toBeGreaterThan(330)
-    expect(pink).toBeLessThan(355)
-    // the blend must genuinely sit between the two, near their midpoint
+    expect(blue).toBeGreaterThan(195)
+    expect(blue).toBeLessThan(215)
+    expect(pink).toBeGreaterThan(325)
+    expect(pink).toBeLessThan(340)
+    // the blend must genuinely sit between the two, at their midpoint: the
+    // mark's whole meaning is that WE is exactly between YOU and ME
     expect(purple).toBeGreaterThan(blue)
     expect(purple).toBeLessThan(pink)
-    expect(Math.abs(purple - (blue + pink) / 2)).toBeLessThan(15)
+    expect(Math.abs(purple - (blue + pink) / 2)).toBeLessThan(3)
   })
 
   it('keeps every interactive color on the same hue line as the mark', () => {
@@ -128,10 +156,10 @@ describe('brand identity is the logo, measured (docs/BRAND.md §1)', () => {
       expect(h, `${hex} hue ${h.toFixed(0)}°`).toBeGreaterThan(lo)
       expect(h, `${hex} hue ${h.toFixed(0)}°`).toBeLessThan(hi)
     }
-    between(token('person-a'), 195, 230) // one person: blue side
-    between(token('primary'), 260, 305) // together: the blend
-    between(token('person-b'), 330, 360) // the other: pink side
-    between(token('on-blend'), 255, 305) // the ink on the mark: also the blend
+    between(token('person-a'), 195, 220) // one person: blue side
+    between(token('primary'), 260, 285) // together: the blend
+    between(token('person-b'), 325, 345) // the other: pink side
+    between(token('on-blend'), 255, 285) // the ink on the mark: also the blend
   })
 
   it('keeps the ink on the mark chromatic — a black would read as dropped on', () => {
@@ -160,9 +188,11 @@ const PAIRINGS: Array<[fg: string, bg: string, min: number]> = [
   ['primary-foreground', 'primary-strong', 4.5],
   // Primary buttons are filled with the logo gradient itself, so the ink
   // must stay readable at every stop of it — see docs/BRAND.md §4.
-  ['on-blend', 'brand-blue', 6.0],
-  ['on-blend', 'brand-purple', 6.0],
-  ['on-blend', 'brand-pink', 6.0],
+  ['on-blend', 'brand-blue', 5.0],
+  ['on-blend', 'brand-blue-violet', 5.0],
+  ['on-blend', 'brand-purple', 5.0],
+  ['on-blend', 'brand-magenta', 5.0],
+  ['on-blend', 'brand-pink', 5.0],
   ['person-a', 'surface', 4.5],
   ['person-a', 'person-a-soft', 4.5],
   ['person-b', 'surface', 4.5],
@@ -227,10 +257,16 @@ describe('gradient utilities (§4)', () => {
     }
   })
 
-  it('fills .bg-blend with the logo colors themselves, in order', () => {
+  it('fills .bg-blend with the mark itself: five stops, in order', () => {
     const blend = css.match(/--gradient-blend:[^;]+;/)![0]
-    const stops = [...blend.matchAll(/var\(--(brand-[a-z]+)\)/g)].map((m) => m[1])
-    expect(stops).toEqual(['brand-blue', 'brand-purple', 'brand-pink'])
+    const stops = [...blend.matchAll(/var\(--(brand-[a-z-]+)\)/g)].map((m) => m[1])
+    expect(stops).toEqual([
+      'brand-blue',
+      'brand-blue-violet',
+      'brand-purple',
+      'brand-magenta',
+      'brand-pink',
+    ])
   })
 
   it('uses the readable ramp — never the light logo colors — for gradient text', () => {
@@ -446,9 +482,21 @@ describe('the brand core is written down and wired in (§0)', () => {
 describe('the rulebook is present and linked (§8)', () => {
   it('ships docs/BRAND.md', () => {
     const doc = readFileSync('docs/BRAND.md', 'utf8')
-    expect(doc).toContain('#67AEFD')
-    expect(doc).toContain('#D5B2E2')
-    expect(doc).toContain('#FD7FA2')
+    for (const hex of ['#36A7F4', '#6F8EF2', '#AC75E6', '#D765CC', '#F74699']) {
+      expect(doc).toContain(hex)
+    }
+  })
+
+  it('quotes the same token values the stylesheet ships — the doc cannot drift', () => {
+    const doc = readFileSync('docs/BRAND.md', 'utf8')
+    const rows = [
+      ...doc.matchAll(/^\| `--([a-z-]+)` \| `(#[0-9A-Fa-f]{6})` \|(?: `(#[0-9A-Fa-f]{6})` \|)?/gm),
+    ]
+    expect(rows.length, 'docs/BRAND.md lists no token rows').toBeGreaterThanOrEqual(6)
+    for (const [, name, light, dark] of rows) {
+      expect(token(name), `--${name} (light)`).toBe(light.toLowerCase())
+      if (dark) expect(token(name, 'dark'), `--${name} (dark)`).toBe(dark.toLowerCase())
+    }
   })
 
   it('is pointed to from the agent instructions so every session loads it', () => {

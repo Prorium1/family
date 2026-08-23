@@ -18,7 +18,7 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="bg-wash">
         <div className="mx-auto flex max-w-3xl flex-col items-center px-4 py-20 text-center">
-          <BrandMark className="mb-6 h-16 w-24" state="together" />
+          <BrandMark className="mb-6 h-16 w-auto" state="together" />
           <p className="text-blend text-sm font-bold tracking-[0.2em]">YOU + ME → WE</p>
           <h1 className="mt-3 text-2xl leading-relaxed font-bold sm:text-3xl">
             違うから、知りたくなる。

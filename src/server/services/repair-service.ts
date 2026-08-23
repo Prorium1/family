@@ -8,6 +8,7 @@ import {
   type RepairInsight,
 } from '@/lib/validation/ai-insight'
 import { generateStructured, inputHashOf, AiGenerationError } from '@/lib/ai/client'
+import { hasAiProcessingConsent } from './settings-service'
 import { LOVE_INTERPRETER_SYSTEM_PROMPT, wrapUserData } from '@/lib/ai/system-prompt'
 import { track } from '@/lib/analytics/track'
 import type { RepairMode, VisibilityLevel } from '@/types/domain'
@@ -72,6 +73,9 @@ export async function getRepairSession(
     insightStatus = 'generating'
   } else if (current?.status === 'failed') {
     insightStatus = 'failed'
+  } else if (!(await hasAiProcessingConsent(userId))) {
+    // Nothing was sent, and the session still works without it.
+    insightStatus = 'consent_off'
   }
 
   return {
@@ -175,6 +179,13 @@ export async function generateRepairInsight(sessionId: string, userId: string): 
 
   const aiEntries = await repos.repair.listAiReadableEntries(sessionId)
   if (aiEntries.length === 0) return
+
+  // Nobody's words reach a model without that person's agreement. A solo
+  // session needs only its author's; a together session needs both, because
+  // both are in the text.
+  const authors = [...new Set(aiEntries.map((e) => e.userId))]
+  const consents = await Promise.all(authors.map((id) => hasAiProcessingConsent(id)))
+  if (!consents.every(Boolean)) return
 
   const assessment = combineAssessments(aiEntries.map((e) => checkTextSafety(e.text)))
   if (assessment.level === 'urgent') {

@@ -39,9 +39,23 @@ async function register(
   await getRepositories().profiles.update(userId, { displayName, gender })
 }
 
+/** Onboarding records an AI-processing consent, so the fixtures do too. */
+async function grantAiConsent(userId: string, granted = true): Promise<void> {
+  await getRepositories().consents.record({
+    id: `co_${userId}_${Date.now()}_${Math.round(Math.random() * 1e6)}`,
+    userId,
+    kind: 'ai_processing',
+    granted,
+    version: '1.0',
+    recordedAt: new Date().toISOString(),
+  })
+}
+
 async function pairAB(): Promise<string> {
   const invite = await createInvitation(A, 'dating')
   const { coupleId } = await acceptInvitation(B, invite.code)
+  await grantAiConsent(A)
+  await grantAiConsent(B)
   return coupleId
 }
 
@@ -371,6 +385,60 @@ describe('who may pair (docs/BRAND.md §3.1)', () => {
     expect(JSON.stringify(couple)).not.toContain('female')
     const profileA = await getRepositories().profiles.getById(A)
     expect(profileA?.gender).toBe('female')
+  })
+})
+
+describe('AI consent is a promise, not a checkbox (docs/SECURITY.md §2)', () => {
+  const consent = grantAiConsent
+
+  async function revealTogether(coupleId: string) {
+    const assignment = await ensureTodayAssignment(coupleId, A)
+    for (const [user, text] of [
+      [A, '休みの日は静かに過ごしたい。'],
+      [B, '休みの日は出かけたい。'],
+    ] as const) {
+      await saveDraft(assignment.id, user, { kind: 'text', text }, 'shared')
+      await submitAnswer(assignment.id, user)
+    }
+    return assignment
+  }
+
+  it('sends nothing to the AI when one partner has not agreed', async () => {
+    const coupleId = await pairAB()
+    await consent(A, true)
+    await consent(B, false)
+
+    const assignment = await revealTogether(coupleId)
+    const view = await getTodayView(assignment.id, A)
+
+    expect(view?.insightStatus).toBe('consent_off')
+    expect(view?.insight).toBeNull()
+    // …and nothing was generated for the consenting half either
+    expect(await getRepositories().insights.findCurrent(assignment.id)).toBeNull()
+  })
+
+  it('still reveals both answers — declining costs nothing but the AI', async () => {
+    const coupleId = await pairAB()
+    await consent(A, true)
+    await consent(B, false)
+
+    const assignment = await revealTogether(coupleId)
+    const view = await getTodayView(assignment.id, A)
+
+    expect(view?.partnerAnswer).not.toBeNull()
+    expect(JSON.stringify(view?.partnerAnswer)).toContain('出かけたい')
+  })
+
+  it('runs the AI once both have agreed', async () => {
+    const coupleId = await pairAB()
+    await consent(A, true)
+    await consent(B, true)
+
+    const assignment = await revealTogether(coupleId)
+    const view = await getTodayView(assignment.id, A)
+
+    expect(view?.insightStatus).toBe('ready')
+    expect(view?.insight?.title).toBeTruthy()
   })
 })
 

@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { hasSupabaseConfig, isDemoMode } from '@/config/env'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { GENDERS } from '@/types/domain'
+import { rateLimit } from '@/lib/security/rate-limit'
 
 /**
  * Passwordless entry (spec §5): one email field, one tap. The link in the
@@ -22,6 +23,15 @@ export async function POST(request: NextRequest) {
 
   const email = z.string().email().safeParse(String(form.get('email') ?? '').trim())
   if (!email.success) return back('error=email')
+
+  // Login links are the one thing anyone can ask this app to send, so the
+  // request is rate limited per address and per caller before it is sent.
+  const caller = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+  const throttled = [
+    rateLimit(`magic:addr:${email.data.toLowerCase()}`, { limit: 5, windowMs: 15 * 60_000 }),
+    rateLimit(`magic:ip:${caller}`, { limit: 20, windowMs: 15 * 60_000 }),
+  ].find((r) => !r.allowed)
+  if (throttled) return back('error=rate_limited')
 
   // The entry already asked 男性 / 女性 — carry it to onboarding so the
   // question is asked once, not twice.

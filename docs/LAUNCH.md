@@ -47,7 +47,14 @@ NEXT_PUBLIC_SUPABASE_URL=https://gjrzghiyuxhbkjvypsig.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_TANYY4Vtm2Ea_7Ti4aRllg_vVyMoBqU
 NEXT_PUBLIC_APP_URL=https://family-demo.vercel.app
 INVITATION_TOKEN_PEPPER=<32バイト以上のランダム文字列を新規生成>
+DATA_ENCRYPTION_KEY=<`openssl rand -base64 32` で生成した32バイト>
 ```
+
+`DATA_ENCRYPTION_KEY` は、二人が書いた文章を暗号化する鍵です。
+**デモモードを切ると、この鍵が無い限りアプリは起動しません**（黙って平文を保存するのが
+最悪の失敗だからです）。**この鍵を失うと、保存済みの文章は永久に読めなくなります。**
+他の重要な秘密情報と同じ場所に保管してください。
+鍵を交換するときは、旧鍵を `DATA_ENCRYPTION_KEY_PREVIOUS` に残せば既存データも読めます。
 
 `INVITATION_TOKEN_PEPPER` は招待トークンのHMAC鍵です。**必ず新しくランダム生成**してください
 （例: `openssl rand -base64 48`）。一度決めたら変更しないでください。変更すると発行済みの
@@ -110,6 +117,7 @@ ANTHROPIC_API_KEY=<キー>       # または OPENAI_API_KEY
 | 第三者に見えるもの | 質問カタログ127件のみ（意図通り） |
 | アカウント削除 | ✅ 実行可能（`0009`で修正）。二人で作ったものは残り、作成者は匿名化 |
 | 匿名で叩けるRPC | `peek_couple_invitation` のみ（`/join` の招待者名表示用） |
+| 本文の暗号化（DBから読めないこと） | ✅ 実測: 保存値は `v1.…` の暗号文。本文の断片も一致しない |
 | ペアリング・回答・解除のRPC | 匿名からは実行不可（`0010`/`0011`で封鎖） |
 
 `ai_generation_logs` / `analytics_events` / `audit_logs` / `safety_events` は

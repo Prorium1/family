@@ -1,0 +1,43 @@
+YOU + ME → WE | FINAL GOLDEN-RATIO LOGO SPEC
+
+Golden ratio φ:
+1.618033988750
+
+Main-circle radius R:
+438.0000px
+
+Main-circle diameter:
+2R = 876.0000px
+
+Center distance:
+d = 2R / φ = 541.3978px
+
+Actual overlap width:
+2R - d = 2R / φ² = 334.6022px
+
+Head diameter:
+R / φ² = 167.3011px
+
+Stroke width:
+R / φ⁵ = 39.4944px
+
+Head-to-ring gap:
+R / φ⁴ = 63.9033px
+
+Main pair width:
+2R + d = 2φR = 1417.3978px
+
+Main pair height:
+2R = 876.0000px
+
+Verified pair ratio:
+width / height = 1.618033988750
+target φ            = 1.618033988750
+difference          = 0.000000000000000
+
+Alignment:
+- Head centers align with each main-circle center.
+- Both main circles have identical radius.
+- Central lens is the exact geometric intersection.
+- A single user-space gradient is shared by both rings and the lens.
+- Heads are solid water blue and solid pink with no gradients.

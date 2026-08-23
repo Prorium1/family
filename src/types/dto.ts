@@ -59,7 +59,8 @@ export interface TodayViewDTO {
   partnerAnswer: RevealedAnswerDTO | null
   myRevealedAnswer: RevealedAnswerDTO | null
   insight: DailyInsight | null
-  insightStatus: 'none' | 'generating' | 'ready' | 'failed'
+  /** `consent_off`: someone has not agreed to AI processing — nothing was sent */
+  insightStatus: 'none' | 'generating' | 'ready' | 'failed' | 'consent_off'
   revealedAt: string | null
 }
 
@@ -135,7 +136,8 @@ export interface RepairSessionDTO {
   partnerJoined: boolean
   partnerSubmitted: boolean
   insight: RepairInsight | null
-  insightStatus: 'none' | 'generating' | 'ready' | 'failed'
+  /** `consent_off`: someone has not agreed to AI processing — nothing was sent */
+  insightStatus: 'none' | 'generating' | 'ready' | 'failed' | 'consent_off'
   agreements: Array<{ id: string; text: string; agreedByMe: boolean; agreedByPartner: boolean }>
 }
 

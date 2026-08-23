@@ -34,7 +34,7 @@ export function RevealPanel({
   return (
     <div className="animate-gentle-rise space-y-3">
       <div className="bg-wash rounded-card px-4 py-4 text-center">
-        <BrandMark className="mx-auto h-7 w-10" state="together" />
+        <BrandMark className="mx-auto h-7 w-auto" state="together" />
         <p className="text-blend mt-2 text-sm font-semibold">二人の答えがそろいました</p>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
