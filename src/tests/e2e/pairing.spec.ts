@@ -33,7 +33,7 @@ test.describe('ペアリング (spec §37-1)', () => {
     await onboardIfNeeded(page)
     await page.goto(todayUrl)
     await page.waitForURL(/\/pair/)
-    await expect(page.getByRole('button', { name: '招待リンクとコードを作成' })).toBeVisible()
+    await expect(page.getByRole('button', { name: '招待コードを作成' })).toBeVisible()
   })
 
   test('a wrong invite code is rejected with a gentle error', async ({ page }) => {
@@ -43,8 +43,8 @@ test.describe('ペアリング (spec §37-1)', () => {
 
     await loginAs(page, 'b', '/onboarding')
     await onboardIfNeeded(page)
-    await page.getByLabel('招待コード').fill('000000')
-    await page.getByRole('button', { name: '参加する' }).click()
+    await page.getByLabel('相手のコード / 招待リンク').fill('000000')
+    await page.getByRole('button', { name: '二人をつなぐ' }).click()
     await expect(page.getByText('コードが確認できませんでした', { exact: false })).toBeVisible()
   })
 })

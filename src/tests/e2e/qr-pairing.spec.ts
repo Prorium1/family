@@ -67,14 +67,15 @@ test.describe('QRコードの読み取りから、二人がつながるまで', 
     await loginAs(page, 'a', '/onboarding')
     await onboardIfNeeded(page, { name: 'ゆき', gender: '女性' })
     await page.waitForURL(/\/pair/)
+    // read aloud in threes on screen — and accepted exactly as it is written
     const code = (await page.locator('[data-testid="invite-code"]').textContent())?.trim() ?? ''
-    expect(code).toMatch(/^\d{6}$/)
+    expect(code).toMatch(/^\d{3}・\d{3}$/)
 
     await loginAs(page, 'b', '/onboarding')
     await onboardIfNeeded(page, { name: 'かい', gender: '男性' })
     await page.waitForURL(/\/pair/)
-    await page.getByLabel('招待コード').fill(code)
-    await page.getByRole('button', { name: '参加する' }).click()
+    await page.getByLabel('相手のコード / 招待リンク').fill(code)
+    await page.getByRole('button', { name: '二人をつなぐ' }).click()
     await page.waitForURL(/\/home/)
     await expect(page.getByRole('heading', { name: '今日のふたり' })).toBeVisible()
   })

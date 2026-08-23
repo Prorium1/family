@@ -36,7 +36,13 @@ const securityHeaders = [
   // Invitation tokens live in the path (/join/{token}), so no other origin
   // may ever learn the path a visitor came from.
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()' },
+  // The camera is granted to this origin alone, and only so the pairing screen
+  // can read a partner's QR code. Frames are decoded on the device and never
+  // uploaded, never stored (docs/SECURITY.md §6). Everything else stays off.
+  {
+    key: 'Permissions-Policy',
+    value: 'camera=(self), microphone=(), geolocation=(), interest-cohort=()',
+  },
   { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
   { key: 'X-DNS-Prefetch-Control', value: 'off' },
 ]
