@@ -7,7 +7,7 @@ import { PageTitle } from '@/components/shared/page-title'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/shared/empty-state'
-import { BookHeart, Sparkles } from 'lucide-react'
+import { BookHeart, NotebookPen, HeartPulse, Sparkles } from 'lucide-react'
 
 export const metadata = { title: 'ふたり' }
 
@@ -49,12 +49,12 @@ export default async function StoryPage() {
       <Card className="border-primary/30">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2">
-            <Sparkles className="size-4 text-primary" aria-hidden="true" />
+            <Sparkles className="text-primary size-4" aria-hidden="true" />
             私たち
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-text-muted">
+          <p className="text-text-muted text-sm">
             {weEntries.length === 0
               ? '違いから二人でつくったものが、ここに積み重なっていきます。'
               : `二人でつくったもの: ${weEntries.length}件`}
@@ -63,8 +63,8 @@ export default async function StoryPage() {
             <dl className="mt-3 grid grid-cols-4 gap-2 text-center">
               {WE_KIND_ORDER.map((kind) => (
                 <div key={kind} className="rounded-card-sm bg-together-soft px-1 py-2">
-                  <dd className="text-base font-bold text-primary">{weCounts[kind]}</dd>
-                  <dt className="text-[11px] text-primary">{WE_KIND_LABELS[kind].label}</dt>
+                  <dd className="text-primary text-base font-bold">{weCounts[kind]}</dd>
+                  <dt className="text-primary text-[11px]">{WE_KIND_LABELS[kind].label}</dt>
                 </div>
               ))}
             </dl>
@@ -78,7 +78,7 @@ export default async function StoryPage() {
       {story.couple.daysTogether !== null ? (
         <Card className="bg-wash">
           <CardContent className="py-6 text-center">
-            <p className="text-xs text-text-muted">アプリで一緒に過ごした日数</p>
+            <p className="text-text-muted text-xs">アプリで一緒に過ごした日数</p>
             <p className="mt-1 text-4xl font-bold">
               {story.couple.daysTogether + 1}
               <span className="ml-1 text-base font-normal">日目</span>
@@ -89,9 +89,12 @@ export default async function StoryPage() {
 
       <dl className="grid grid-cols-2 gap-3">
         {stats.map((stat) => (
-          <div key={stat.label} className="rounded-card border border-border bg-surface p-4 text-center">
-            <dd className="text-2xl font-bold text-primary">{stat.value}</dd>
-            <dt className="mt-0.5 text-xs text-text-muted">{stat.label}</dt>
+          <div
+            key={stat.label}
+            className="rounded-card border-border bg-surface border p-4 text-center"
+          >
+            <dd className="text-primary text-2xl font-bold">{stat.value}</dd>
+            <dt className="text-text-muted mt-0.5 text-xs">{stat.label}</dt>
           </div>
         ))}
       </dl>
@@ -106,7 +109,7 @@ export default async function StoryPage() {
               {story.sharedValues.map((value) => (
                 <li
                   key={value}
-                  className="rounded-full bg-together-soft px-3 py-1 text-xs text-primary"
+                  className="bg-together-soft text-primary rounded-full px-3 py-1 text-xs"
                 >
                   {value}
                 </li>
@@ -138,14 +141,14 @@ export default async function StoryPage() {
         {story.timeline.length === 0 ? (
           <EmptyState title="これから、ここに二人のあゆみが刻まれていきます" />
         ) : (
-          <ol className="relative space-y-4 border-l border-border pl-5">
+          <ol className="border-border relative space-y-4 border-l pl-5">
             {story.timeline.map((event) => (
               <li key={event.id} className="relative">
                 <span
-                  className="absolute top-1.5 -left-[23px] size-2.5 rounded-full bg-primary"
+                  className="bg-primary absolute top-1.5 -left-[23px] size-2.5 rounded-full"
                   aria-hidden="true"
                 />
-                <p className="text-xs text-text-muted">{event.date}</p>
+                <p className="text-text-muted text-xs">{event.date}</p>
                 <p className="text-sm font-medium">{event.title}</p>
               </li>
             ))}
@@ -153,15 +156,51 @@ export default async function StoryPage() {
         )}
       </section>
 
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2">
+              <NotebookPen className="text-primary size-4" aria-hidden="true" />
+              ふたりのメモ
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-text-muted text-sm">
+              買いものメモ、旅行の計画、もしものときの控え。本文は暗号化され、読めるのは二人だけ。
+            </p>
+            <Button asChild variant="soft" size="sm" className="mt-3">
+              <Link href="/notes">ひらく</Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2">
+              <HeartPulse className="text-primary size-4" aria-hidden="true" />
+              からだの周期
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-text-muted text-sm">
+              記録も共有も、本人だけが決められます。共有をオンにするまで相手には何も見えません。
+            </p>
+            <Button asChild variant="soft" size="sm" className="mt-3">
+              <Link href="/cycle">ひらく</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <BookHeart className="size-4 text-primary" aria-hidden="true" />
+            <BookHeart className="text-primary size-4" aria-hidden="true" />
             ふたりの取扱説明書
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-text-muted">
+          <p className="text-text-muted text-sm">
             アプリでの対話から、AIと二人で育てる説明書。AIの推測は、確認するまで確定になりません。
           </p>
           <Button asChild variant="soft" size="sm" className="mt-3">

@@ -9,8 +9,13 @@ const items = [
   { href: '/home', label: '今日', icon: Sunrise, match: ['/home', '/today'] },
   { href: '/journeys', label: '深める', icon: Sprout, match: ['/journeys', '/weekly-checkin'] },
   { href: '/repair', label: '整える', icon: HeartHandshake, match: ['/repair'] },
-  { href: '/future', label: '未来', icon: Compass, match: ['/future', '/agreements'] },
-  { href: '/story', label: 'ふたり', icon: Users, match: ['/story', '/manual', '/we'] },
+  { href: '/future', label: '未来', icon: Compass, match: ['/future', '/agreements', '/dates'] },
+  {
+    href: '/story',
+    label: 'ふたり',
+    icon: Users,
+    match: ['/story', '/manual', '/we', '/notes', '/cycle'],
+  },
 ] as const
 
 /** Mobile bottom navigation (spec §6): 5 fixed tabs, ≥44px targets, safe-area aware. */
@@ -19,7 +24,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="メインナビゲーション"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface pb-[var(--safe-bottom)] md:hidden"
+      className="border-border bg-surface fixed inset-x-0 bottom-0 z-40 border-t pb-[var(--safe-bottom)] md:hidden"
     >
       <ul className="mx-auto flex max-w-lg items-stretch justify-around">
         {items.map(({ href, label, icon: Icon, match }) => {

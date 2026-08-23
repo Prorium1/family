@@ -109,11 +109,11 @@ export type SensitivityLevel = 0 | 1 | 2 | 3
  * the product carries one of these, chosen by the author — never inferred.
  */
 export const VISIBILITY_LEVELS = [
-  'private',        // only the author, not even the AI
-  'ai_only',        // the AI may read it; the partner never sees it
-  'ai_summary',     // the partner sees an AI summary, never the original text
+  'private', // only the author, not even the AI
+  'ai_only', // the AI may read it; the partner never sees it
+  'ai_summary', // the partner sees an AI summary, never the original text
   'shared_excerpt', // the partner sees only excerpts the author picked
-  'shared',         // the partner sees the original text
+  'shared', // the partner sees the original text
 ] as const
 export type VisibilityLevel = (typeof VISIBILITY_LEVELS)[number]
 
@@ -126,10 +126,7 @@ export const AI_READABLE_VISIBILITY: readonly VisibilityLevel[] = [
 ]
 
 /** Visibility levels whose raw text may ever reach the partner. */
-export const PARTNER_READABLE_VISIBILITY: readonly VisibilityLevel[] = [
-  'shared_excerpt',
-  'shared',
-]
+export const PARTNER_READABLE_VISIBILITY: readonly VisibilityLevel[] = ['shared_excerpt', 'shared']
 
 // ── Safety ──────────────────────────────────────────────────────────────────
 export const SAFETY_LEVELS = ['none', 'needs_support', 'urgent'] as const
@@ -187,8 +184,48 @@ export type RepairSessionStatus = (typeof REPAIR_SESSION_STATUSES)[number]
 export const REPAIR_MODES = ['solo', 'together'] as const
 export type RepairMode = (typeof REPAIR_MODES)[number]
 
+// ── Couple life: dates, notes, signals, cycle ──────────────────────────────
+/**
+ * ふたりの予定 — one system carries every date the couple keeps: anniversaries
+ * and memorial days repeat yearly, trips and reminders happen once. A
+ * memorial day (命日・法事) is deliberately its own kind so the UI can hold it
+ * with the right tone — remembered, never "celebrated".
+ */
+export const COUPLE_DATE_KINDS = [
+  'anniversary',
+  'family_event',
+  'memorial',
+  'trip',
+  'reminder',
+] as const
+export type CoupleDateKind = (typeof COUPLE_DATE_KINDS)[number]
+
+/** ふたりのメモ — shared notes; `emergency` is the もしものときメモ. */
+export const COUPLE_NOTE_KINDS = ['memo', 'trip', 'emergency'] as const
+export type CoupleNoteKind = (typeof COUPLE_NOTE_KINDS)[number]
+
+/**
+ * ひとことサイン — a one-tap, GPS-free check-in. A fixed vocabulary instead of
+ * free text: nothing to compose, nothing to get wrong, and no location is
+ * ever collected (the privacy policy promises that).
+ */
+export const SIGNAL_KINDS = [
+  'good_morning',
+  'heading_out',
+  'got_home',
+  'work_done',
+  'good_night',
+  'thinking_of_you',
+] as const
+export type SignalKind = (typeof SIGNAL_KINDS)[number]
+
 // ── Journeys ────────────────────────────────────────────────────────────────
-export const JOURNEY_PROGRESS_STATUSES = ['not_started', 'in_progress', 'completed', 'paused'] as const
+export const JOURNEY_PROGRESS_STATUSES = [
+  'not_started',
+  'in_progress',
+  'completed',
+  'paused',
+] as const
 export type JourneyProgressStatus = (typeof JOURNEY_PROGRESS_STATUSES)[number]
 
 export type LocaleCode = 'ja' | 'en'

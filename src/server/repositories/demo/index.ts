@@ -4,6 +4,7 @@ import { demoCouples, demoInvitations, demoProfiles, demoQuestions } from './cor
 import { demoAnswers, demoAssignments, demoInsights } from './conversations'
 import { demoCheckins, demoJourneys } from './programs'
 import { demoRepair } from './repair'
+import { demoCoupleDates, demoCoupleNotes, demoCycles, demoSignals } from './life'
 import {
   demoAgreements,
   demoWeEntries,
@@ -30,6 +31,10 @@ export const demoRepositories: Repositories = {
   repair: demoRepair,
   agreements: demoAgreements,
   weEntries: demoWeEntries,
+  coupleDates: demoCoupleDates,
+  coupleNotes: demoCoupleNotes,
+  signals: demoSignals,
+  cycles: demoCycles,
   timeline: demoTimeline,
   manual: demoManual,
   notificationPreferences: demoNotificationPreferences,

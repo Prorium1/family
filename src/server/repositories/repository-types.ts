@@ -8,8 +8,12 @@ import type {
   AnswerRevision,
   ConsentRecord,
   Couple,
+  CoupleDate,
   CoupleInvitation,
   CoupleMember,
+  CoupleNote,
+  CoupleSignal,
+  CycleRecord,
   Journey,
   JourneyProgress,
   JourneyStep,
@@ -44,7 +48,12 @@ export interface Repositories {
     getById(id: string): Promise<Profile | null>
     /** Create the profile on first login when it does not exist yet. */
     ensure(id: string, defaults: { displayName: string; email: string }): Promise<Profile>
-    update(id: string, patch: Partial<Pick<Profile, 'displayName' | 'locale' | 'timezone' | 'ageConfirmed' | 'gender'>>): Promise<Profile>
+    update(
+      id: string,
+      patch: Partial<
+        Pick<Profile, 'displayName' | 'locale' | 'timezone' | 'ageConfirmed' | 'gender'>
+      >,
+    ): Promise<Profile>
   }
   /**
    * NEW WE (docs/BRAND.md §0.2). Couple-scoped like every shared record: a
@@ -58,7 +67,10 @@ export interface Repositories {
   }
   couples: {
     getForUser(userId: string): Promise<{ couple: Couple; members: CoupleMember[] } | null>
-    getById(coupleId: string, viewerUserId: string): Promise<{ couple: Couple; members: CoupleMember[] } | null>
+    getById(
+      coupleId: string,
+      viewerUserId: string,
+    ): Promise<{ couple: Couple; members: CoupleMember[] } | null>
     create(input: { stage: RelationshipStage; userIds: [string, string] }): Promise<Couple>
     updateStage(coupleId: string, viewerUserId: string, stage: RelationshipStage): Promise<void>
     unpair(coupleId: string, requestedByUserId: string): Promise<void>
@@ -86,8 +98,16 @@ export interface Repositories {
   }
   assignments: {
     getById(assignmentId: string, viewerUserId: string): Promise<QuestionAssignment | null>
-    getTodayForCouple(coupleId: string, viewerUserId: string, date: string): Promise<QuestionAssignment | null>
-    findByStep(coupleId: string, journeyStepId: string, viewerUserId: string): Promise<QuestionAssignment | null>
+    getTodayForCouple(
+      coupleId: string,
+      viewerUserId: string,
+      date: string,
+    ): Promise<QuestionAssignment | null>
+    findByStep(
+      coupleId: string,
+      journeyStepId: string,
+      viewerUserId: string,
+    ): Promise<QuestionAssignment | null>
     listForCouple(coupleId: string, viewerUserId: string): Promise<QuestionAssignment[]>
     create(assignment: QuestionAssignment): Promise<QuestionAssignment>
     save(assignment: QuestionAssignment): Promise<QuestionAssignment>
@@ -121,19 +141,31 @@ export interface Repositories {
     listActive(): Promise<Journey[]>
     getBySlug(slug: string): Promise<Journey | null>
     stepsFor(journeyId: string): Promise<JourneyStep[]>
-    getProgress(coupleId: string, journeyId: string, viewerUserId: string): Promise<JourneyProgress | null>
+    getProgress(
+      coupleId: string,
+      journeyId: string,
+      viewerUserId: string,
+    ): Promise<JourneyProgress | null>
     listProgress(coupleId: string, viewerUserId: string): Promise<JourneyProgress[]>
     saveProgress(progress: JourneyProgress, viewerUserId: string): Promise<JourneyProgress>
   }
   checkins: {
-    getForWeek(coupleId: string, weekKey: string, viewerUserId: string): Promise<WeeklyCheckin | null>
+    getForWeek(
+      coupleId: string,
+      weekKey: string,
+      viewerUserId: string,
+    ): Promise<WeeklyCheckin | null>
     create(checkin: WeeklyCheckin): Promise<WeeklyCheckin>
     save(checkin: WeeklyCheckin): Promise<WeeklyCheckin>
     /** Same reveal discipline as daily answers. */
     getAnswers(
       checkinId: string,
       viewerUserId: string,
-    ): Promise<{ mine: WeeklyCheckinAnswer | null; partner: WeeklyCheckinAnswer | null; partnerSubmitted: boolean }>
+    ): Promise<{
+      mine: WeeklyCheckinAnswer | null
+      partner: WeeklyCheckinAnswer | null
+      partnerSubmitted: boolean
+    }>
     saveAnswers(answer: WeeklyCheckinAnswer): Promise<WeeklyCheckinAnswer>
   }
   repair: {
@@ -149,7 +181,9 @@ export interface Repositories {
       viewerUserId: string,
     ): Promise<import('@/server/policies/visibility-policy').PartnerFacingEntry[]>
     /** For the AI pipeline: only ai-readable text, keyed by author. */
-    listAiReadableEntries(sessionId: string): Promise<Array<{ userId: string; promptId: string; text: string }>>
+    listAiReadableEntries(
+      sessionId: string,
+    ): Promise<Array<{ userId: string; promptId: string; text: string }>>
     hasPartnerSubmitted(sessionId: string, viewerUserId: string): Promise<boolean>
     saveEntry(entry: RepairEntry): Promise<RepairEntry>
     findInsight(sessionId: string, inputHash: string): Promise<RepairInsightRecord | null>
@@ -165,13 +199,45 @@ export interface Repositories {
     save(agreement: Agreement, revision: AgreementRevision): Promise<Agreement>
     listRevisions(agreementId: string, viewerUserId: string): Promise<AgreementRevision[]>
   }
+  /** ふたりの予定 — anniversaries, family events, memorial days, trips. */
+  coupleDates: {
+    list(coupleId: string, viewerUserId: string): Promise<CoupleDate[]>
+    create(date: CoupleDate): Promise<CoupleDate>
+    remove(id: string, viewerUserId: string): Promise<void>
+  }
+  /** ふたりのメモ — shared notes, both partners read and edit. */
+  coupleNotes: {
+    list(coupleId: string, viewerUserId: string): Promise<CoupleNote[]>
+    getById(id: string, viewerUserId: string): Promise<CoupleNote | null>
+    create(note: CoupleNote): Promise<CoupleNote>
+    save(note: CoupleNote, viewerUserId: string): Promise<CoupleNote>
+    remove(id: string, viewerUserId: string): Promise<void>
+  }
+  /** ひとことサイン — append-only; readers take each member's latest. */
+  signals: {
+    listRecent(coupleId: string, viewerUserId: string, sinceIso: string): Promise<CoupleSignal[]>
+    add(signal: CoupleSignal): Promise<CoupleSignal>
+  }
+  /**
+   * からだの周期. `getOwn` returns the viewer's row; `getSharedByPartner`
+   * returns the partner's row ONLY when they turned sharing on — the driver
+   * enforces that, so an unshared record never crosses this boundary.
+   */
+  cycles: {
+    getOwn(userId: string): Promise<CycleRecord | null>
+    getSharedByPartner(coupleId: string, viewerUserId: string): Promise<CycleRecord | null>
+    save(record: CycleRecord): Promise<CycleRecord>
+  }
   timeline: {
     list(coupleId: string, viewerUserId: string): Promise<TimelineEvent[]>
     add(event: TimelineEvent): Promise<TimelineEvent>
   }
   manual: {
     list(coupleId: string, viewerUserId: string): Promise<RelationshipManualItemRecord[]>
-    save(item: RelationshipManualItemRecord, viewerUserId: string): Promise<RelationshipManualItemRecord>
+    save(
+      item: RelationshipManualItemRecord,
+      viewerUserId: string,
+    ): Promise<RelationshipManualItemRecord>
     remove(itemId: string, viewerUserId: string): Promise<void>
   }
   notificationPreferences: {

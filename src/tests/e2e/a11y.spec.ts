@@ -44,6 +44,11 @@ test.describe('アクセシビリティ (spec §36, WCAG 2.2 AA)', () => {
     await page.goto('/repair/new')
     await expectNoSeriousViolations(page)
 
+    for (const path of ['/dates', '/notes', '/cycle']) {
+      await page.goto(path)
+      await expectNoSeriousViolations(page)
+    }
+
     await page.goto('/settings/privacy')
     await expectNoSeriousViolations(page)
   })

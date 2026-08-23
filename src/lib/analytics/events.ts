@@ -18,6 +18,12 @@ export const ANALYTICS_EVENTS = [
   'repair_session_completed',
   'agreement_created',
   'new_we_saved',
+  'couple_date_added',
+  'couple_note_created',
+  'signal_sent',
+  // metadata only, as every event is — the date itself is never logged
+  'cycle_start_recorded',
+  'cycle_sharing_changed',
   'share_card_created',
   'referral_completed',
 ] as const
