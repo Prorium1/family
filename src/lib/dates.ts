@@ -23,3 +23,17 @@ export function isoWeekKey(at = new Date()): string {
 export function daysBetween(fromIso: string, to = new Date()): number {
   return Math.max(0, Math.floor((to.getTime() - new Date(fromIso).getTime()) / 86400000))
 }
+
+/** Whole-day difference between two YYYY-MM-DD strings (b - a). */
+export function diffDateKeys(a: string, b: string): number {
+  const [ay, am, ad] = a.split('-').map(Number)
+  const [by, bm, bd] = b.split('-').map(Number)
+  return Math.round((Date.UTC(by, bm - 1, bd) - Date.UTC(ay, am - 1, ad)) / 86400000)
+}
+
+/** Add whole days to a YYYY-MM-DD string. */
+export function addDaysToKey(key: string, days: number): string {
+  const [y, m, d] = key.split('-').map(Number)
+  const date = new Date(Date.UTC(y, m - 1, d + days))
+  return date.toISOString().slice(0, 10)
+}

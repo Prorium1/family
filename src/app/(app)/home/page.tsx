@@ -6,6 +6,10 @@ import { getPairStatus } from '@/server/services/pairing-service'
 import { listJourneys } from '@/server/services/journey-service'
 import { listAgreements } from '@/server/services/agreement-service'
 import { getWeeklyCheckin } from '@/server/services/checkin-service'
+import { getNextDate } from '@/server/services/dates-service'
+import { getSignalBoard } from '@/server/services/signals-service'
+import { NextDateCard } from '@/features/life/components/next-date-card'
+import { SignalCard } from '@/features/life/components/signal-card'
 import { track } from '@/lib/analytics/track'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -22,11 +26,13 @@ export default async function HomePage({ searchParams }: PageProps<'/home'>) {
   const params = await searchParams
   const justPaired = params.paired === '1'
 
-  const [pairStatus, weekly, journeys, agreements] = await Promise.all([
+  const [pairStatus, weekly, journeys, agreements, nextDate, signals] = await Promise.all([
     getPairStatus(session.userId),
     getWeeklyCheckin(session.coupleId, session.userId),
     listJourneys(session.coupleId, session.userId),
     listAgreements(session.coupleId, session.userId),
+    getNextDate(session.coupleId, session.userId),
+    getSignalBoard(session.coupleId, session.userId),
   ])
   const assignment = await ensureTodayAssignment(session.coupleId, session.userId)
   const today = await getTodayView(assignment.id, session.userId)
@@ -49,14 +55,14 @@ export default async function HomePage({ searchParams }: PageProps<'/home'>) {
     <div className="space-y-5">
       <AutoRefresh enabled={mySubmitted && !revealed} />
       {justPaired ? (
-        <div className="animate-gentle-rise bg-wash rounded-card px-5 py-4 text-sm text-primary">
+        <div className="animate-gentle-rise bg-wash rounded-card text-primary px-5 py-4 text-sm">
           <p className="font-semibold">{t.pairing.pairedTitle}</p>
           <p className="mt-0.5">{t.pairing.pairedBody}</p>
         </div>
       ) : null}
 
       <div>
-        <p className="text-sm text-text-muted">
+        <p className="text-text-muted text-sm">
           {dateLabel}
           {stageLabel ? ` ・ ${stageLabel}` : ''}
         </p>
@@ -64,6 +70,10 @@ export default async function HomePage({ searchParams }: PageProps<'/home'>) {
           {fill(t.home.greeting, { name: session.displayName })}
         </h1>
       </div>
+
+      {nextDate && nextDate.daysUntil !== null && nextDate.daysUntil <= 30 ? (
+        <NextDateCard next={nextDate} />
+      ) : null}
 
       <Card className="animate-gentle-rise">
         <CardHeader>
@@ -102,7 +112,7 @@ export default async function HomePage({ searchParams }: PageProps<'/home'>) {
           </dl>
 
           {mySubmitted && !revealed ? (
-            <p className="rounded-card-sm bg-surface-muted px-4 py-3 text-sm text-text-muted">
+            <p className="rounded-card-sm bg-surface-muted text-text-muted px-4 py-3 text-sm">
               {t.home.waitingBody}
             </p>
           ) : null}
@@ -120,6 +130,11 @@ export default async function HomePage({ searchParams }: PageProps<'/home'>) {
         </CardContent>
       </Card>
 
+      <SignalCard
+        board={signals}
+        partnerName={pairStatus.couple?.partner?.displayName ?? 'パートナー'}
+      />
+
       <div className="grid gap-4 sm:grid-cols-2">
         <Card>
           <CardHeader>
@@ -130,7 +145,9 @@ export default async function HomePage({ searchParams }: PageProps<'/home'>) {
           </CardHeader>
           <CardContent>
             <Button asChild variant="soft" size="sm">
-              <Link href="/weekly-checkin">{weekly.mySubmitted ? t.home.viewCta : t.home.answerCta}</Link>
+              <Link href="/weekly-checkin">
+                {weekly.mySubmitted ? t.home.viewCta : t.home.answerCta}
+              </Link>
             </Button>
           </CardContent>
         </Card>
@@ -144,7 +161,9 @@ export default async function HomePage({ searchParams }: PageProps<'/home'>) {
             <CardContent>
               <Button asChild variant="soft" size="sm">
                 <Link href={`/journeys/${recommendedJourney.slug}`}>
-                  {recommendedJourney.status === 'in_progress' ? t.journeys.continue : t.journeys.start}
+                  {recommendedJourney.status === 'in_progress'
+                    ? t.journeys.continue
+                    : t.journeys.start}
                 </Link>
               </Button>
             </CardContent>
@@ -168,7 +187,7 @@ export default async function HomePage({ searchParams }: PageProps<'/home'>) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <HeartHandshake className="size-4 text-primary" aria-hidden="true" />
+              <HeartHandshake className="text-primary size-4" aria-hidden="true" />
               {t.home.repairCard}
             </CardTitle>
             <CardDescription>{t.repair.subtitle}</CardDescription>
@@ -184,7 +203,7 @@ export default async function HomePage({ searchParams }: PageProps<'/home'>) {
       {today?.insight ? (
         <Card className="border-primary/30">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-primary">
+            <CardTitle className="text-primary flex items-center gap-2">
               <Sparkles className="size-4" aria-hidden="true" />
               {t.home.aiLead}
             </CardTitle>

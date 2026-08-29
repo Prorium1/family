@@ -10,8 +10,12 @@ import type {
   AnswerRevision,
   ConsentRecord,
   Couple,
+  CoupleDate,
   CoupleInvitation,
   CoupleMember,
+  CoupleNote,
+  CoupleSignal,
+  CycleRecord,
   JourneyProgress,
   NotificationPreference,
   Profile,
@@ -30,7 +34,7 @@ import type {
 } from '@/types/entities'
 import { buildSeedStore } from './seed'
 
-export const DEMO_STORE_VERSION = 1
+export const DEMO_STORE_VERSION = 2
 
 export interface DemoStore {
   version: number
@@ -51,6 +55,10 @@ export interface DemoStore {
   repairAgreements: RepairAgreement[]
   agreements: Agreement[]
   weEntries: WeEntry[]
+  coupleDates: CoupleDate[]
+  coupleNotes: CoupleNote[]
+  coupleSignals: CoupleSignal[]
+  cycleRecords: CycleRecord[]
   agreementRevisions: AgreementRevision[]
   timeline: TimelineEvent[]
   manualItems: RelationshipManualItemRecord[]

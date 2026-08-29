@@ -8,6 +8,10 @@ import type { Repositories } from '../repository-types'
 import {
   mapAgreement,
   mapWeEntry,
+  mapCoupleDate,
+  mapCoupleNote,
+  mapCoupleSignal,
+  mapCycleRecord,
   SEALED,
   mapAgreementRevision,
   mapAnswer,
@@ -35,6 +39,10 @@ import {
   type AgreementRevisionRow,
   type AgreementRow,
   type WeEntryRow,
+  type CoupleDateRow,
+  type CoupleNoteRow,
+  type CoupleSignalRow,
+  type CycleRecordRow,
   type AnswerRow,
   type AssignmentRow,
   type CheckinAnswerRow,
@@ -240,8 +248,7 @@ export function createSupabaseRepositories(): Repositories {
         })
         throwIf(error)
         const row = (Array.isArray(data) ? data[0] : data) as
-          | { inviter_name: string; stage: string }
-          | undefined
+          { inviter_name: string; stage: string } | undefined
         if (!row) return null
         return {
           inviterName: row.inviter_name,
@@ -287,7 +294,11 @@ export function createSupabaseRepositories(): Repositories {
     questions: {
       async getById(id) {
         const client = await db()
-        const { data, error } = await client.from('questions').select('*').eq('id', id).maybeSingle()
+        const { data, error } = await client
+          .from('questions')
+          .select('*')
+          .eq('id', id)
+          .maybeSingle()
         throwIf(error)
         return data ? mapQuestion(data as QuestionRow) : null
       },
@@ -446,14 +457,19 @@ export function createSupabaseRepositories(): Repositories {
           .select('*')
           .eq('answer_id', answerId)
         throwIf(error)
-        return ((data ?? []) as Array<{ id: string; answer_id: string; value: AnswerRow['value']; edited_at: string }>).map(
-          (r) => ({
-            id: r.id,
-            answerId: r.answer_id,
-            value: openJson(r.value, SEALED.answerRevision),
-            editedAt: r.edited_at,
-          }),
-        )
+        return (
+          (data ?? []) as Array<{
+            id: string
+            answer_id: string
+            value: AnswerRow['value']
+            edited_at: string
+          }>
+        ).map((r) => ({
+          id: r.id,
+          answerId: r.answer_id,
+          value: openJson(r.value, SEALED.answerRevision),
+          editedAt: r.edited_at,
+        }))
       },
       async addRevision(revision) {
         const client = await db()
@@ -628,7 +644,11 @@ export function createSupabaseRepositories(): Repositories {
         const client = await db()
         const { data, error } = await client
           .from('weekly_checkins')
-          .insert({ couple_id: checkin.coupleId, week_key: checkin.weekKey, status: checkin.status })
+          .insert({
+            couple_id: checkin.coupleId,
+            week_key: checkin.weekKey,
+            status: checkin.status,
+          })
           .select()
           .single()
         throwIf(error)
@@ -925,7 +945,10 @@ export function createSupabaseRepositories(): Repositories {
     agreements: {
       async list(coupleId) {
         const client = await db()
-        const { data, error } = await client.from('agreements').select('*').eq('couple_id', coupleId)
+        const { data, error } = await client
+          .from('agreements')
+          .select('*')
+          .eq('couple_id', coupleId)
         throwIf(error)
         return ((data ?? []) as AgreementRow[]).map(mapAgreement)
       },
@@ -966,7 +989,8 @@ export function createSupabaseRepositories(): Repositories {
           title: sealText(revision.title, SEALED.revisionTitle),
           background: sealText(revision.background, SEALED.revisionBackground),
           decision: sealText(revision.decision, SEALED.revisionDecision),
-          comment: revision.comment === null ? null : sealText(revision.comment, SEALED.revisionComment),
+          comment:
+            revision.comment === null ? null : sealText(revision.comment, SEALED.revisionComment),
           edited_by_user_id: revision.editedByUserId,
         })
         throwIf(rErr)
@@ -994,6 +1018,178 @@ export function createSupabaseRepositories(): Repositories {
           .eq('agreement_id', agreementId)
         throwIf(error)
         return ((data ?? []) as AgreementRevisionRow[]).map(mapAgreementRevision)
+      },
+    },
+
+    coupleDates: {
+      async list(coupleId) {
+        const client = await db()
+        const { data, error } = await client
+          .from('couple_dates')
+          .select('*')
+          .eq('couple_id', coupleId)
+          .order('date')
+        throwIf(error)
+        return ((data ?? []) as CoupleDateRow[]).map(mapCoupleDate)
+      },
+      async create(date) {
+        const client = await db()
+        const { data, error } = await client
+          .from('couple_dates')
+          .insert({
+            couple_id: date.coupleId,
+            kind: date.kind,
+            title: sealText(date.title, SEALED.coupleDateTitle),
+            date: date.date,
+            repeats_yearly: date.repeatsYearly,
+            note: sealText(date.note, SEALED.coupleDateNote),
+            created_by_user_id: date.createdByUserId,
+          })
+          .select()
+          .single()
+        throwIf(error)
+        return mapCoupleDate(data as CoupleDateRow)
+      },
+      async remove(id) {
+        const client = await db()
+        const { error } = await client.from('couple_dates').delete().eq('id', id)
+        throwIf(error)
+      },
+    },
+
+    coupleNotes: {
+      async list(coupleId) {
+        const client = await db()
+        const { data, error } = await client
+          .from('couple_notes')
+          .select('*')
+          .eq('couple_id', coupleId)
+          .order('updated_at', { ascending: false })
+        throwIf(error)
+        return ((data ?? []) as CoupleNoteRow[]).map(mapCoupleNote)
+      },
+      async getById(id) {
+        const client = await db()
+        const { data, error } = await client
+          .from('couple_notes')
+          .select('*')
+          .eq('id', id)
+          .maybeSingle()
+        throwIf(error)
+        return data ? mapCoupleNote(data as CoupleNoteRow) : null
+      },
+      async create(note) {
+        const client = await db()
+        const { data, error } = await client
+          .from('couple_notes')
+          .insert({
+            couple_id: note.coupleId,
+            kind: note.kind,
+            title: sealText(note.title, SEALED.coupleNoteTitle),
+            body: sealText(note.body, SEALED.coupleNoteBody),
+            created_by_user_id: note.createdByUserId,
+            updated_by_user_id: note.updatedByUserId,
+          })
+          .select()
+          .single()
+        throwIf(error)
+        return mapCoupleNote(data as CoupleNoteRow)
+      },
+      async save(note) {
+        const client = await db()
+        const { data, error } = await client
+          .from('couple_notes')
+          .update({
+            title: sealText(note.title, SEALED.coupleNoteTitle),
+            body: sealText(note.body, SEALED.coupleNoteBody),
+            updated_by_user_id: note.updatedByUserId,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', note.id)
+          .select()
+          .single()
+        throwIf(error)
+        return mapCoupleNote(data as CoupleNoteRow)
+      },
+      async remove(id) {
+        const client = await db()
+        const { error } = await client.from('couple_notes').delete().eq('id', id)
+        throwIf(error)
+      },
+    },
+
+    signals: {
+      async listRecent(coupleId, _viewerUserId, sinceIso) {
+        const client = await db()
+        const { data, error } = await client
+          .from('couple_signals')
+          .select('*')
+          .eq('couple_id', coupleId)
+          .gte('created_at', sinceIso)
+          .order('created_at', { ascending: false })
+          .limit(50)
+        throwIf(error)
+        return ((data ?? []) as CoupleSignalRow[]).map(mapCoupleSignal)
+      },
+      async add(signal) {
+        const client = await db()
+        const { data, error } = await client
+          .from('couple_signals')
+          .insert({
+            couple_id: signal.coupleId,
+            user_id: signal.userId,
+            kind: signal.kind,
+          })
+          .select()
+          .single()
+        throwIf(error)
+        return mapCoupleSignal(data as CoupleSignalRow)
+      },
+    },
+
+    cycles: {
+      async getOwn(userId) {
+        const client = await db()
+        const { data, error } = await client
+          .from('cycle_records')
+          .select('*')
+          .eq('user_id', userId)
+          .maybeSingle()
+        throwIf(error)
+        return data ? mapCycleRecord(data as CycleRecordRow) : null
+      },
+      async getSharedByPartner(coupleId, viewerUserId) {
+        const client = await db()
+        // the sharing gate is enforced in the query itself: an unshared row
+        // is never selected, so it cannot leak past this boundary
+        const { data, error } = await client
+          .from('cycle_records')
+          .select('*')
+          .eq('couple_id', coupleId)
+          .eq('shared_with_partner', true)
+          .neq('user_id', viewerUserId)
+          .maybeSingle()
+        throwIf(error)
+        return data ? mapCycleRecord(data as CycleRecordRow) : null
+      },
+      async save(record) {
+        const client = await db()
+        const { data, error } = await client
+          .from('cycle_records')
+          .upsert(
+            {
+              user_id: record.userId,
+              couple_id: record.coupleId,
+              shared_with_partner: record.sharedWithPartner,
+              payload: sealText(JSON.stringify(record.payload), SEALED.cyclePayload),
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: 'user_id' },
+          )
+          .select()
+          .single()
+        throwIf(error)
+        return mapCycleRecord(data as CycleRecordRow)
       },
     },
 

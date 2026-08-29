@@ -25,6 +25,11 @@ export const SEALED = {
   manualStatement: 'relationship_manual_items.statement',
   checkinAnswers: 'weekly_checkin_answers.answers',
   timelineTitle: 'timeline_events.title',
+  coupleDateTitle: 'couple_dates.title',
+  coupleDateNote: 'couple_dates.note',
+  coupleNoteTitle: 'couple_notes.title',
+  coupleNoteBody: 'couple_notes.body',
+  cyclePayload: 'cycle_records.payload',
 } as const
 
 import type {
@@ -35,8 +40,12 @@ import type {
   AiInsightRecord,
   ConsentRecord,
   Couple,
+  CoupleDate,
   CoupleInvitation,
   CoupleMember,
+  CoupleNote,
+  CoupleSignal,
+  CycleRecord,
   Journey,
   JourneyProgress,
   JourneyStep,
@@ -714,5 +723,103 @@ export function mapDataRequest(row: DataRequestRow): UserDataRequest {
     status: row.status as UserDataRequest['status'],
     requestedAt: row.requested_at,
     completedAt: row.completed_at,
+  }
+}
+
+// ── Couple life ─────────────────────────────────────────────────────
+
+export interface CoupleDateRow {
+  id: string
+  couple_id: string
+  kind: CoupleDate['kind']
+  title: string
+  date: string
+  repeats_yearly: boolean
+  note: string
+  created_by_user_id: string | null
+  created_at: string
+}
+
+export function mapCoupleDate(row: CoupleDateRow): CoupleDate {
+  return {
+    id: row.id,
+    coupleId: row.couple_id,
+    kind: row.kind,
+    title: openText(row.title, SEALED.coupleDateTitle),
+    date: row.date,
+    repeatsYearly: row.repeats_yearly,
+    note: openText(row.note, SEALED.coupleDateNote),
+    createdByUserId: row.created_by_user_id,
+    createdAt: row.created_at,
+  }
+}
+
+export interface CoupleNoteRow {
+  id: string
+  couple_id: string
+  kind: CoupleNote['kind']
+  title: string
+  body: string
+  created_by_user_id: string | null
+  updated_by_user_id: string | null
+  created_at: string
+  updated_at: string
+}
+
+export function mapCoupleNote(row: CoupleNoteRow): CoupleNote {
+  return {
+    id: row.id,
+    coupleId: row.couple_id,
+    kind: row.kind,
+    title: openText(row.title, SEALED.coupleNoteTitle),
+    body: openText(row.body, SEALED.coupleNoteBody),
+    createdByUserId: row.created_by_user_id,
+    updatedByUserId: row.updated_by_user_id,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  }
+}
+
+export interface CoupleSignalRow {
+  id: string
+  couple_id: string
+  user_id: string
+  kind: CoupleSignal['kind']
+  created_at: string
+}
+
+export function mapCoupleSignal(row: CoupleSignalRow): CoupleSignal {
+  return {
+    id: row.id,
+    coupleId: row.couple_id,
+    userId: row.user_id,
+    kind: row.kind,
+    createdAt: row.created_at,
+  }
+}
+
+export interface CycleRecordRow {
+  user_id: string
+  couple_id: string
+  shared_with_partner: boolean
+  payload: string
+  updated_at: string
+}
+
+export function mapCycleRecord(row: CycleRecordRow): CycleRecord {
+  // a text column holding a JSON string, sealed or plain — never jsonb, so
+  // the database cannot index or preview what is inside it
+  let payload: { starts: string[] }
+  try {
+    payload = JSON.parse(openText(row.payload, SEALED.cyclePayload)) as { starts: string[] }
+  } catch {
+    payload = { starts: [] }
+  }
+  return {
+    userId: row.user_id,
+    coupleId: row.couple_id,
+    sharedWithPartner: row.shared_with_partner,
+    payload: Array.isArray(payload?.starts) ? payload : { starts: [] },
+    updatedAt: row.updated_at,
   }
 }

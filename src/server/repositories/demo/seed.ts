@@ -16,7 +16,7 @@ export const DEMO_USER_IDS = {
 export function buildSeedStore(): DemoStore {
   const t = new Date().toISOString()
   return {
-    version: 1,
+    version: 2,
     profiles: [
       {
         id: DEMO_USER_IDS.a,
@@ -83,6 +83,10 @@ export function buildSeedStore(): DemoStore {
     repairAgreements: [],
     agreements: [],
     weEntries: [],
+    coupleDates: [],
+    coupleNotes: [],
+    coupleSignals: [],
+    cycleRecords: [],
     agreementRevisions: [],
     timeline: [],
     manualItems: [],

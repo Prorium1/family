@@ -15,6 +15,9 @@ import type {
   RelationshipStage,
   RepairMode,
   RepairSessionStatus,
+  CoupleDateKind,
+  CoupleNoteKind,
+  SignalKind,
   SafetyCategory,
   SafetyLevel,
   SensitivityLevel,
@@ -370,6 +373,60 @@ export interface NotificationPreference {
   /** couple-level quiet window label — "二人の時間" */
   coupleTimeStart: string | null
   coupleTimeEnd: string | null
+}
+
+/**
+ * ふたりの予定: an anniversary, a family event, a memorial day, a trip or a
+ * one-shot reminder. `repeatsYearly` is data, not inferred from kind, so a
+ * one-time family event and a yearly one can coexist.
+ */
+export interface CoupleDate {
+  id: string
+  coupleId: string
+  kind: CoupleDateKind
+  title: string
+  /** YYYY-MM-DD — for repeating dates, the first occurrence. */
+  date: string
+  repeatsYearly: boolean
+  note: string
+  createdByUserId: string | null
+  createdAt: string
+}
+
+/** ふたりのメモ: shared notes — everyday, trip planning, もしものとき. */
+export interface CoupleNote {
+  id: string
+  coupleId: string
+  kind: CoupleNoteKind
+  title: string
+  body: string
+  createdByUserId: string | null
+  updatedByUserId: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+/** ひとことサイン: one tap, one kind, one timestamp. Nothing else. */
+export interface CoupleSignal {
+  id: string
+  coupleId: string
+  userId: string
+  kind: SignalKind
+  createdAt: string
+}
+
+/**
+ * からだの周期 (spec: 生理日など). One row per person; the dates live in a
+ * single encrypted payload, and `sharedWithPartner` is the only readable
+ * fact about it. Sharing is off until the owner turns it on.
+ */
+export interface CycleRecord {
+  userId: string
+  coupleId: string
+  sharedWithPartner: boolean
+  /** encrypted at rest — start dates, newest last */
+  payload: { starts: string[] }
+  updatedAt: string
 }
 
 export interface ConsentRecord {
